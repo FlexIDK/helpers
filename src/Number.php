@@ -4,7 +4,7 @@ namespace One23\Helpers;
 
 class Number
 {
-    public static function val(mixed $val): ?float
+    public static function val(mixed $val): float|int|null
     {
         $val = Value::val($val);
         if (
@@ -26,10 +26,36 @@ class Number
             return null;
         }
 
+        if (! str_contains($val, '.')) {
+            return (int)$val;
+        }
+
         return (float)$val;
     }
 
-    public static function first(...$args): ?float
+    public static function int(
+        mixed $val = null,
+        ?int $default = null,
+        ?int $min = null,
+        ?int $max = null
+    ): ?int {
+        return Integer::get($val, $default, $min, $max);
+    }
+
+    public static function float(
+        mixed $val = null,
+        ?float $default = null,
+        ?float $min = null,
+        ?float $max = null
+    ): ?float {
+        $res = Number::get($val, $default, $min, $max);
+
+        return ! is_null($res)
+            ? (float)$res
+            : null;
+    }
+
+    public static function first(...$args): float|int|null
     {
         foreach ($args as $val) {
             $val = static::val($val);
@@ -43,7 +69,7 @@ class Number
         return null;
     }
 
-    public static function money(mixed $val = null, int $number = 2): ?float
+    public static function money(mixed $val = null, int $number = 2): float|int|null
     {
         $float = static::get($val, null, 0);
         if (! $float) {
@@ -52,10 +78,10 @@ class Number
 
         $pow = pow(10, $number);
 
-        return (int)($float * $pow) / $pow;
+        return floor($float * $pow) / $pow;
     }
 
-    public static function get($val = null, ?float $default = null, ?float $min = null, ?float $max = null): ?float
+    public static function get($val = null, float|int|null $default = null, float|int|null $min = null, float|int|null $max = null): float|int|null
     {
         $val = static::val($val);
         if (! is_numeric($val)) {
@@ -82,6 +108,9 @@ class Number
         return $default;
     }
 
+    /**
+     * @return array<float|int>
+     */
     public static function all(mixed ...$args): array
     {
         $res = [];
@@ -97,7 +126,7 @@ class Number
         return $res;
     }
 
-    public static function min(mixed ...$args): ?float
+    public static function min(mixed ...$args): float|int|null
     {
         $arr = static::all(...$args);
         if (empty($arr)) {
@@ -107,7 +136,7 @@ class Number
         return min(...$arr);
     }
 
-    public static function max(mixed ...$args): ?float
+    public static function max(mixed ...$args): float|int|null
     {
         $arr = static::all(...$args);
         if (empty($arr)) {

@@ -78,7 +78,7 @@ class Random
         return $self->generation($length);
     }
 
-    public static function digitalAlpha(
+    public static function alphaDigital(
         int $length,
         ?bool $upper = false,
     ): string {
@@ -98,5 +98,15 @@ class Random
         );
 
         return $self->generation($length);
+    }
+
+    public static function digitalAlpha(
+        int $length,
+        ?bool $upper = false,
+    ): string {
+        return static::alphaDigital(
+            $length,
+            $upper
+        );
     }
 }

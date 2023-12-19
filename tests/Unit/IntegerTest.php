@@ -119,13 +119,13 @@ class IntegerTest extends TestCase
         );
 
         $this->assertEquals(
-            null,
-            Integer::getOrNull('abc')
+            true,
+            Integer::getOrNull('abc') === null
         );
 
         $this->assertEquals(
-            0,
-            Integer::getOrNull(0)
+            true,
+            Integer::getOrNull(0) === 0
         );
 
         $this->assertEquals(
@@ -138,27 +138,50 @@ class IntegerTest extends TestCase
     {
         $this->assertEquals(
             123,
-            Integer::getOrNull(123)
+            Integer::getOrZero(123)
         );
 
         $this->assertEquals(
-            0,
-            Integer::getOrNull('abc')
+            true,
+            Integer::getOrZero('abc') === 0
         );
 
         $this->assertEquals(
-            0,
-            Integer::getOrNull(null)
+            true,
+            Integer::getOrZero(null) === 0
         );
 
         $this->assertEquals(
             -1,
-            Integer::getOrNull(-1)
+            Integer::getOrZero(-1)
         );
 
         $this->assertEquals(
-            0,
-            Integer::getOrNull(0)
+            true,
+            Integer::getOrZero(0) === 0
+        );
+    }
+
+    public function test_all(): void
+    {
+        $this->assertEquals(
+            [1, 2, 3],
+            Integer::all(...[1, 2, 3])
+        );
+
+        $this->assertEquals(
+            [1, 2, 3],
+            Integer::all(...['abc', 1, 2, 3])
+        );
+
+        $this->assertEquals(
+            [1, 2, 3],
+            Integer::all(...['abc', 1, 2.12, 3, 'def'])
+        );
+
+        $this->assertEquals(
+            [1, 2, 3],
+            Integer::all(...['abc', 1.12, 2.23, null, 3.33, 'def', 'ghi'])
         );
     }
 }

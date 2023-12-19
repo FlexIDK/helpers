@@ -1,5 +1,11 @@
 # One23 Helpers
 
+## Install
+
+```shell
+composer require one23/helpers
+```
+
 ---
 
 ## todo
@@ -9,17 +15,14 @@
 - Date
 - Datetime
 - Db
-- Random
 - Str
 - Url
-- Value
 - Integer
   - min / max / all 
 
 ---
 
 ## Todo test
-- Random
 - Db
 - Value
 

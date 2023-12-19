@@ -8,6 +8,21 @@ class NumberTest extends TestCase
     public function test_val(): void
     {
         $this->assertEquals(
+            true,
+            is_int(Number::val(123))
+        );
+
+        $this->assertEquals(
+            false,
+            is_int(Number::val(123.12))
+        );
+
+        $this->assertEquals(
+            true,
+            is_float(Number::val(123.12))
+        );
+
+        $this->assertEquals(
             123,
             Number::val(123)
         );
@@ -46,6 +61,42 @@ class NumberTest extends TestCase
         $this->assertEquals(
             null,
             Number::val(null)
+        );
+    }
+
+    public function test_float(): void
+    {
+        $this->assertEquals(
+            true,
+            is_float(Number::float(123))
+        );
+
+        $this->assertEquals(
+            true,
+            is_float(Number::float(123.123))
+        );
+
+        $this->assertEquals(
+            true,
+            ! is_float(Number::float('abc'))
+        );
+    }
+
+    public function test_int(): void
+    {
+        $this->assertEquals(
+            true,
+            is_int(Number::int(123))
+        );
+
+        $this->assertEquals(
+            true,
+            is_int(Number::int(123.123))
+        );
+
+        $this->assertEquals(
+            true,
+            ! is_int(Number::int('abc'))
         );
     }
 

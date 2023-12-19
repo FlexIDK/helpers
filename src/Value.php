@@ -39,10 +39,10 @@ class Value
         return $value;
     }
 
-    public static function bool($val, bool $has_null = false): ?bool
+    public static function bool($val, bool $hasNull = false): ?bool
     {
         $val = static::val($val);
-        if ($has_null && is_null($val)) {
+        if ($hasNull && is_null($val)) {
             return null;
         }
 

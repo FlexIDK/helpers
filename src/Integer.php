@@ -13,6 +13,16 @@ class Integer
             : null;
     }
 
+    public static function all(mixed ...$args): array
+    {
+        $res = Number::all(...$args);
+
+        return array_map(
+            fn($val) => (int)$val,
+            $res
+        );
+    }
+
     public static function first(mixed ...$args): ?int
     {
         $res = Number::first(...$args);

@@ -3,6 +3,7 @@
 namespace One23\Helpers;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
 use One23\Helpers\Exceptions\Db as Exception;
 
 class Db
@@ -45,10 +46,10 @@ class Db
 
     public static function update(
         Model $model,
-        bool $throw_exception = true,
+        bool $throwException = true,
     ): bool {
         if (! $model->update()) {
-            if ($throw_exception) {
+            if ($throwException) {
                 static::modelException($model, Enums\DbExceptionType::Update);
             }
 
@@ -60,10 +61,10 @@ class Db
 
     public static function insert(
         Model $model,
-        bool $throw_exception = true,
+        bool $throwException = true,
     ): bool {
         if (! $model->save()) {
-            if ($throw_exception) {
+            if ($throwException) {
                 static::modelException($model, Enums\DbExceptionType::Insert);
             }
 
@@ -75,10 +76,10 @@ class Db
 
     public static function delete(
         Model $model,
-        bool $throw_exception = true,
+        bool $throwException = true,
     ): bool {
         if (! $model->delete()) {
-            if ($throw_exception) {
+            if ($throwException) {
                 static::modelException($model, Enums\DbExceptionType::Delete);
             }
 
@@ -146,10 +147,29 @@ class Db
     ): array {
         $fields = [];
 
+        if (
+            empty($data) ||
+            ! Arr::isAssoc($data)
+        ) {
+            return $fields;
+        }
+
         foreach ($data as $key => $value) {
             $fields["{$jsonField}->{$key}"] = $value;
         }
 
         return $fields;
+    }
+
+    public static function bool($val, bool $hasNull = false): ?int
+    {
+        $res = Value::bool($val, $hasNull);
+        if ($hasNull && is_null($res)) {
+            return null;
+        }
+
+        return $res
+            ? 1
+            : 0;
     }
 }
