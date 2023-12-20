@@ -4,14 +4,15 @@
   "homepage": "https://github.com/FlexIDK/helpers",
   "description": "One23 Helpers for php && laravel",
   "license": "MIT",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "authors": [
   ],
   "require": {
     "php" : "~8.2",
     "illuminate/support": "~v10",
     "illuminate/database": "~v10",
-    "nesbot/carbon": "~2"
+    "nesbot/carbon": "~2",
+    "egulias/email-validator": "~2"
   },
   "require-dev": {
     "symfony/var-dumper": "~v6",

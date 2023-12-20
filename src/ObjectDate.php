@@ -21,7 +21,7 @@ class ObjectDate
     protected ?CarbonInterface $defaultDate = null;
 
     /**
-     * @param  array{maxDays: ?int, min: ?mixed, max: ?mixed, sliceBegin: bool, defaultFrom: ?mixed, defaultTo: ?mixed}|null  $options
+     * @param  array{maxDays: ?int, min: ?mixed, max: ?mixed, sliceBegin: bool, defaultFrom: ?mixed, defaultTo: ?mixed, defaultDate: ?mixed}|null  $options
      */
     public function __construct(array $options = [])
     {
