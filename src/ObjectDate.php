@@ -25,7 +25,10 @@ class ObjectDate
      */
     public function __construct(array $options = [])
     {
-        if ($options['defaultFrom'] ?? null || $options['defaultTo'] ?? null) {
+        if (
+            ($options['defaultFrom'] ?? null) ||
+            ($options['defaultTo'] ?? null)
+        ) {
             $this->setDefaultFromTo(
                 $options['defaultFrom'] ?? null,
                 $options['defaultTo'] ?? null,
@@ -36,7 +39,10 @@ class ObjectDate
             $this->setDefaultDate($options['defaultDate']);
         }
 
-        if ($options['min'] ?? null || $options['max'] ?? null) {
+        if (
+            ($options['min'] ?? null) ||
+            ($options['max'] ?? null)
+        ) {
             $this->setMinMax(
                 $options['min'] ?? null,
                 $options['max'] ?? null,
