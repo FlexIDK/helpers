@@ -107,18 +107,15 @@ class ArrTest extends TestCase
 
     public function test_in_array()
     {
-        $this->assertEquals(
-            true,
+        $this->assertTrue(
             Arr::inArray(1, [1, 2, 3])
         );
 
-        $this->assertEquals(
-            false,
+        $this->assertFalse(
             Arr::inArray(4, [1, 2, 3])
         );
 
-        $this->assertEquals(
-            true,
+        $this->assertTrue(
             Arr::inArray(3, [
                 ['id' => 1],
                 ['id' => 2],
@@ -126,8 +123,7 @@ class ArrTest extends TestCase
             ], 'id')
         );
 
-        $this->assertEquals(
-            false,
+        $this->assertFalse(
             Arr::inArray(4, [
                 ['id' => 1],
                 ['id' => 2],
@@ -138,18 +134,15 @@ class ArrTest extends TestCase
 
     public function test_search()
     {
-        $this->assertEquals(
-            true,
+        $this->assertTrue(
             Arr::search(1, [1, 2, 3]) === 0
         );
 
-        $this->assertEquals(
-            true,
+        $this->assertTrue(
             Arr::search(4, [1, 2, 3]) === false
         );
 
-        $this->assertEquals(
-            true,
+        $this->assertTrue(
             Arr::search(3, [
                 ['id' => 1],
                 ['id' => 2],
@@ -157,8 +150,7 @@ class ArrTest extends TestCase
             ], 'id') === 2
         );
 
-        $this->assertEquals(
-            true,
+        $this->assertTrue(
             Arr::search(4, [
                 ['id' => 1],
                 ['id' => 2],

@@ -6,6 +6,98 @@ use PHPUnit\Framework\TestCase;
 
 class DateTest extends TestCase
 {
+    public function test_to_date_string(): void
+    {
+        $this->assertNotEquals(
+            '2021-01-01',
+            Date::toDateString('2021-01-02 12:34:56')
+        );
+
+        $this->assertEquals(
+            '2021-01-01',
+            Date::toDateString('2021-01-01 12:34:56')
+        );
+
+        $this->assertNull(
+            Date::toDateString('abcdefg', false)
+        );
+    }
+
+    public function test_is_between(): void
+    {
+        $this->assertFalse(
+            Date::isBetween(
+                null,
+                '2021-01-01 12:01:12',
+                '2021-02-01 13:23:12'
+            )
+        );
+
+        $this->assertFalse(
+            Date::isBetween(
+                '2021-01-01 12:01:12',
+                null,
+                '2020-12-01 11:01:12',
+            )
+        );
+
+        $this->assertFalse(
+            Date::isBetween(
+                '2021-01-01 12:01:12',
+                '2021-02-01 13:23:12',
+                '2021-03-01 14:23:12'
+            )
+        );
+
+        $this->assertFalse(
+            Date::isBetween(
+                '2021-01-01',
+                '2021-02-02',
+                null
+            )
+        );
+
+        $this->assertTrue(
+            Date::isBetween(
+                '2021-01-01',
+                '2021-02-01',
+                '2020-12-01',
+            )
+        );
+
+        $this->assertTrue(
+            Date::isBetween(
+                '2021-01-01',
+                '2020-12-01',
+                '2021-02-01'
+            )
+        );
+
+        $this->assertTrue(
+            Date::isBetween(
+                '2021-01-01',
+                '2020-12-01',
+                null
+            )
+        );
+
+        $this->assertTrue(
+            Date::isBetween(
+                '2021-01-01',
+                null,
+                '2021-02-01'
+            )
+        );
+
+        $this->assertFalse(
+            Date::isBetween(
+                '2021-01-01',
+                null,
+                null
+            )
+        );
+    }
+
     public function test_parse(): void
     {
         $this->assertEquals(

@@ -5,81 +5,148 @@ use PHPUnit\Framework\TestCase;
 
 class StrTest extends TestCase
 {
+    public function test_end_with(): void
+    {
+        $this->assertTrue(
+            Str::endWith('ABC', 'c', false)
+        );
+
+        $this->assertTrue(
+            Str::endWith('aBC', ['C'], false)
+        );
+
+        $this->assertTrue(
+            Str::endWith('abc', 'c')
+        );
+
+        $this->assertFalse(
+            Str::endWith('abc', 'A')
+        );
+
+        $this->assertFalse(
+            Str::endWith('abc', 'C')
+        );
+
+        $this->assertTrue(
+            Str::endWith('abc', ['e', 'c', 'b'])
+        );
+    }
+
+    public function test_contains(): void
+    {
+        $this->assertTrue(
+            Str::contains('ABC', 'c', false)
+        );
+
+        $this->assertTrue(
+            Str::contains('aBC', ['b'], false)
+        );
+
+        $this->assertTrue(
+            Str::contains('abc', 'a')
+        );
+
+        $this->assertFalse(
+            Str::contains('abc', 'C')
+        );
+
+        $this->assertFalse(
+            Str::contains('abc', 'A')
+        );
+
+        $this->assertTrue(
+            Str::contains('abc', ['e', 'f', 'a'])
+        );
+    }
+
+    public function test_start_with(): void
+    {
+        $this->assertTrue(
+            Str::startWith('ABC', 'a', false)
+        );
+
+        $this->assertTrue(
+            Str::startWith('aBC', ['A'], false)
+        );
+
+        $this->assertTrue(
+            Str::startWith('abc', 'a')
+        );
+
+        $this->assertFalse(
+            Str::startWith('abc', 'b')
+        );
+
+        $this->assertFalse(
+            Str::startWith('abc', 'A')
+        );
+
+        $this->assertTrue(
+            Str::startWith('abc', ['b', 'c', 'a'])
+        );
+    }
+
     public function test_ip(): void
     {
-        $this->assertEquals(
-            true,
+        $this->assertTrue(
             Str::isIp('::1')
         );
 
-        $this->assertEquals(
-            true,
+        $this->assertTrue(
             Str::isIp('127.0.0.1')
         );
 
-        $this->assertEquals(
-            true,
+        $this->assertTrue(
             Str::isIp('::')
         );
 
-        $this->assertEquals(
-            true,
+        $this->assertTrue(
             Str::isIp('2001:0db8:85a3:0000:0000:8a2e:0370:7334')
         );
 
-        $this->assertEquals(
-            true,
+        $this->assertTrue(
             Str::isIp('[2001:0db8:85a3:0000:0000:8a2e:0370:7334]')
         );
 
-        $this->assertEquals(
-            false,
+        $this->assertFalse(
             Str::isIp('0.0.12.256')
         );
     }
 
     public function test_ip_v4(): void
     {
-        $this->assertEquals(
-            true,
+        $this->assertTrue(
             Str::isIpV4('8.8.8.8')
         );
 
-        $this->assertEquals(
-            false,
+        $this->assertFalse(
             Str::isIpV4('8.8.256.8')
         );
 
-        $this->assertEquals(
-            false,
+        $this->assertFalse(
             Str::isIpV4('::1')
         );
 
-        $this->assertEquals(
-            false,
+        $this->assertFalse(
             Str::isIpV4('2001:0db8:85a3:0000:0000:8a2e:0370:7334')
         );
     }
 
     public function test_ip_v6(): void
     {
-        $this->assertEquals(
-            true,
+        $this->assertTrue(
             Str::isIpV6('::1')
         );
 
-        $this->assertEquals(
-            true,
+        $this->assertTrue(
             Str::isIpV6('2001:0db8:85a3:0000:0000:8a2e:0370:7334')
         );
 
-        $this->assertEquals(
-            true,
+        $this->assertTrue(
             Str::isIpV6('[2001:0db8:85a3:0000:0000:8a2e:0370:7334]')
         );
 
-        $this->assertEquals(
-            false,
+        $this->assertFalse(
             Str::isIpV6('1.1.1.1')
         );
     }
@@ -91,8 +158,7 @@ class StrTest extends TestCase
             Str::val('123')
         );
 
-        $this->assertEquals(
-            true,
+        $this->assertTrue(
             Str::val(123) === '123'
         );
 
@@ -214,8 +280,7 @@ class StrTest extends TestCase
 
     public function test_is_email(): void
     {
-        $this->assertEquals(
-            true,
+        $this->assertTrue(
             Str::isEmail('TEST+abc@tesT.CoM')
         );
     }

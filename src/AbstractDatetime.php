@@ -3,10 +3,128 @@
 namespace One23\Helpers;
 
 use Carbon\CarbonInterface;
+use One23\Helpers\Exceptions\Datetime as Exception;
 
 abstract class AbstractDatetime
 {
-    abstract public static function parse(mixed $date, ?string $format = null): ?CarbonInterface;
+    protected const FILL_LIMIT = 1000;
+
+    abstract public static function parse(mixed $val, ?string $format = null): ?CarbonInterface;
+
+    public static function val(mixed $val, mixed $default = null): ?CarbonInterface
+    {
+        $res = static::parse($val);
+        if (! $res && $default) {
+            $res = static::parse($default);
+        }
+
+        return $res ?: null;
+    }
+
+    public static function orNow(mixed $val): CarbonInterface
+    {
+        return static::val($val, 'now');
+    }
+
+    public static function now(): CarbonInterface
+    {
+        return static::parse('now');
+    }
+
+    public static function isBetween(
+        mixed $date,
+        mixed $from, mixed $to
+    ): bool {
+        [$date, $from, $to] = static::map(null, $date, $from, $to);
+
+        if (! $date) {
+            return false;
+        }
+
+        if ($from && $to) {
+            [$from, $to] = static::minMax($from, $to);
+
+            return $date->between($from, $to);
+        }
+
+        if ($from) {
+            return $date->gte($from);
+        }
+
+        if ($to) {
+            return $date->lte($to);
+        }
+
+        return false;
+    }
+
+    public static function fill(
+        mixed $from,
+        mixed $to,
+        \Closure $key,
+        mixed $default = null,
+        ?\Closure $step = null,
+    ): array {
+        $res = [];
+        $i = 0;
+
+        static::each(
+            $from, $to,
+            function(CarbonInterface $date) use (&$res, &$i, $key, $default) {
+                if ($i >= static::FILL_LIMIT) {
+                    return false;
+                }
+
+                $k = $key($date);
+                if (! is_string($k)) {
+                    throw new Exception('key must be string');
+                }
+
+                $res[$key($date)] = Value::val($default, $date);
+
+                $i++;
+            },
+            step: $step
+        );
+
+        return $res;
+    }
+
+    public static function each(
+        mixed $from,
+        mixed $to,
+        \Closure $callback,
+        ?\Closure $step = null,
+    ): void {
+        [$from, $to] = static::minMax($from, $to);
+
+        if ($step === null) {
+            $step = function(CarbonInterface $date): CarbonInterface {
+                return $date->addDay();
+            };
+        }
+
+        /**
+         * @var CarbonInterface $from
+         * @var CarbonInterface $to
+         */
+        $current = static::parse($from);
+
+        while (true) {
+            if (Datetime::gt($current, $to)) {
+                break;
+            }
+
+            if ($callback($current) === false) {
+                break;
+            }
+
+            $current = $step($current);
+            if (! $current instanceof CarbonInterface) {
+                throw new Exception('callable `step` need `CarbonInterface` return');
+            }
+        }
+    }
 
     public static function toDateString(mixed $value, bool $defaultNow = false): ?string
     {
@@ -22,20 +140,6 @@ abstract class AbstractDatetime
         return $res->toDateString();
     }
 
-    public static function toDateTimeString(mixed $value, bool $defaultNow = false): ?string
-    {
-        $res = static::parse($value);
-        if (! $res) {
-            if (! $defaultNow) {
-                return null;
-            }
-
-            $res = static::parse('now');
-        }
-
-        return $res->toDateTimeString();
-    }
-
     protected static function foreachValues(
         \Closure $closure,
         mixed ...$values
@@ -47,7 +151,11 @@ abstract class AbstractDatetime
 
     public static function where(string $rule, ?string $format, mixed $first, mixed ...$values): bool
     {
-        $values = static::map($first, ...$values);
+        $values = static::map(
+            null,
+            $first,
+            ...$values
+        );
         /** @var CarbonInterface $first */
         $first = array_shift($values);
         if (! $first) {
@@ -133,26 +241,35 @@ abstract class AbstractDatetime
 
     public static function toImmutable(mixed ...$values): array
     {
-        $res = [];
-        static::foreachValues(
-            function(?CarbonInterface $date) use (&$res) {
-                $res[] = $date?->toImmutable();
+        return static::map(
+            function(?CarbonInterface $date) {
+                return $date?->toImmutable();
             },
             ...$values
         );
+    }
 
-        return $res;
+    public static function toMutable(mixed ...$values): array
+    {
+        return static::map(
+            function(?CarbonInterface $date) {
+                return $date?->toMutable();
+            },
+            ...$values
+        );
     }
 
     /**
      * @return array<CarbonInterface|null>
      */
-    public static function map(mixed ...$values): array
+    public static function map(?\Closure $callback = null, mixed ...$values): array
     {
         $res = [];
         static::foreachValues(
-            function(?CarbonInterface $date) use (&$res) {
-                $res[] = $date;
+            function(?CarbonInterface $date) use (&$res, $callback) {
+                $res[] = $callback
+                    ? $callback($date)
+                    : $date;
             },
             ...$values
         );

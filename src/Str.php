@@ -3,9 +3,94 @@
 namespace One23\Helpers;
 
 use Egulias\EmailValidator;
+use Illuminate\Support\Arr as IlluminateArr;
+use Illuminate\Support\Str as IlluminateStr;
 
 class Str
 {
+    // todo crc
+    // todo isCrc
+
+    protected static function haystackAndNeedles(mixed $haystack, array|string $needles, bool $caseSensitive = true): array
+    {
+        $needles = IlluminateArr::wrap($needles);
+        $needles = array_map(function($needle) use ($caseSensitive) {
+            $val = static::val($needle);
+
+            return $val
+                ? ($caseSensitive ? $val : IlluminateStr::lower($val))
+                : null;
+        }, $needles);
+
+        $haystack = static::val($haystack);
+        $haystack = $caseSensitive ? $haystack : IlluminateStr::lower($haystack);
+
+        return [
+            $haystack,
+            $needles,
+        ];
+    }
+
+    public static function contains(mixed $haystack, array|string $needles, bool $caseSensitive = true): bool
+    {
+        [$haystack, $needles] = static::haystackAndNeedles($haystack, $needles, $caseSensitive);
+        if (! $haystack) {
+            return false;
+        }
+
+        foreach ($needles as $needle) {
+            if (! $needle) {
+                continue;
+            }
+
+            if (str_contains($haystack, $needle)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static function startWith(mixed $haystack, array|string $needles, bool $caseSensitive = true): bool
+    {
+        [$haystack, $needles] = static::haystackAndNeedles($haystack, $needles, $caseSensitive);
+        if (! $haystack) {
+            return false;
+        }
+
+        foreach ($needles as $needle) {
+            if (! $needle) {
+                continue;
+            }
+
+            if (str_starts_with($haystack, $needle)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static function endWith(mixed $haystack, array|string $needles, bool $caseSensitive = true): bool
+    {
+        [$haystack, $needles] = static::haystackAndNeedles($haystack, $needles, $caseSensitive);
+        if (! $haystack) {
+            return false;
+        }
+
+        foreach ($needles as $needle) {
+            if (! $needle) {
+                continue;
+            }
+
+            if (str_ends_with($haystack, $needle)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public static function val(mixed $val, ?string $default = null, bool $trim = true): ?string
     {
         $val = Value::val($val);

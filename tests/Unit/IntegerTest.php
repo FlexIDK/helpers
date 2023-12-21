@@ -118,13 +118,11 @@ class IntegerTest extends TestCase
             Integer::getOrNull(123)
         );
 
-        $this->assertEquals(
-            true,
+        $this->assertTrue(
             Integer::getOrNull('abc') === null
         );
 
-        $this->assertEquals(
-            true,
+        $this->assertTrue(
             Integer::getOrNull(0) === 0
         );
 
@@ -141,13 +139,11 @@ class IntegerTest extends TestCase
             Integer::getOrZero(123)
         );
 
-        $this->assertEquals(
-            true,
+        $this->assertTrue(
             Integer::getOrZero('abc') === 0
         );
 
-        $this->assertEquals(
-            true,
+        $this->assertTrue(
             Integer::getOrZero(null) === 0
         );
 
@@ -156,8 +152,7 @@ class IntegerTest extends TestCase
             Integer::getOrZero(-1)
         );
 
-        $this->assertEquals(
-            true,
+        $this->assertTrue(
             Integer::getOrZero(0) === 0
         );
     }

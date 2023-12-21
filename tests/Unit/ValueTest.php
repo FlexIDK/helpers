@@ -23,13 +23,11 @@ class ValueTest extends TestCase
             Value::val('1')
         );
 
-        $this->assertEquals(
-            true,
+        $this->assertTrue(
             Value::val(true)
         );
 
-        $this->assertEquals(
-            false,
+        $this->assertFalse(
             Value::val(false)
         );
 
@@ -67,55 +65,45 @@ class ValueTest extends TestCase
 
     public function test_bool(): void
     {
-        $this->assertEquals(
-            true,
+        $this->assertTrue(
             Value::bool(true)
         );
 
-        $this->assertEquals(
-            true,
+        $this->assertTrue(
             Value::bool(1)
         );
 
-        $this->assertEquals(
-            true,
+        $this->assertTrue(
             Value::bool('1')
         );
 
-        $this->assertEquals(
-            false,
+        $this->assertFalse(
             Value::bool(false)
         );
 
-        $this->assertEquals(
-            false,
+        $this->assertFalse(
             Value::bool(0)
         );
 
-        $this->assertEquals(
-            false,
+        $this->assertFalse(
             Value::bool('0')
         );
 
-        $this->assertEquals(
-            null,
+        $this->assertNull(
             Value::bool(null, true)
         );
 
-        $this->assertEquals(
-            false,
+        $this->assertFalse(
             Value::bool(null, false)
         );
 
-        $this->assertEquals(
-            true,
+        $this->assertTrue(
             Value::bool(function() {
                 return true;
             })
         );
 
-        $this->assertEquals(
-            false,
+        $this->assertFalse(
             Value::bool(function() {
                 return false;
             })

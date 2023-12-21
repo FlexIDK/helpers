@@ -29,23 +29,19 @@ class DbTest extends TestCase
 
     public function test_bool(): void
     {
-        $this->assertEquals(
-            true,
+        $this->assertTrue(
             Db::bool(true) === 1
         );
 
-        $this->assertEquals(
-            true,
+        $this->assertTrue(
             Db::bool(false) === 0
         );
 
-        $this->assertEquals(
-            true,
+        $this->assertTrue(
             Db::bool(null) === 0
         );
 
-        $this->assertEquals(
-            true,
+        $this->assertTrue(
             is_null(Db::bool(null, true))
         );
     }

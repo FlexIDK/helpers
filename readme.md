@@ -11,7 +11,7 @@ composer require one23/helpers
 ## todo
 
 - Url
-- FillByHours
+- Str::crc/isCrc
 
 ---
 

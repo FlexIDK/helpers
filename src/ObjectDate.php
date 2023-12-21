@@ -160,6 +160,7 @@ class ObjectDate
         $date = $date ? $this->limitMinMax($date) : null;
 
         return Date::map(
+            null,
             $date,
             $min,
             $max,
@@ -171,7 +172,10 @@ class ObjectDate
      */
     public function fromTo(mixed $from = null, mixed $to = null): array
     {
-        [$from, $to] = Date::map($from, $to);
+        [$from, $to] = Date::map(
+            null,
+            $from, $to
+        );
 
         if (! $from && ! $to) {
             if ($this->defaultTo) {
