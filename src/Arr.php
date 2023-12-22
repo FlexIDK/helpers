@@ -6,6 +6,49 @@ use Illuminate\Support\Arr as IlluminateArr;
 
 class Arr
 {
+    public static function dotMerge(array ...$arrays): array
+    {
+        $res = array_shift($arrays);
+
+        foreach ($arrays as $arr) {
+            array_walk(
+                $arr,
+                function($val, $key) use (&$res) {
+                    $res[$key] = $val;
+                }
+            );
+        }
+
+        return $res;
+    }
+
+    public static function undot(array $array): array
+    {
+        return IlluminateArr::undot($array);
+    }
+
+    public static function dot(array $array, string $prepend = ''): array
+    {
+        $res = [];
+
+        foreach ($array as $key => $value) {
+            if (is_array($value) && ! empty($value)) {
+                $arr = static::dot($value, $prepend . $key . '.');
+
+                array_walk(
+                    $arr,
+                    function($v, $k) use (&$res) {
+                        $res[(string)$k] = $v;
+                    }
+                );
+            } else {
+                $res[$prepend . $key] = Value::val($value);
+            }
+        }
+
+        return $res;
+    }
+
     public static function flat(mixed $val, $delimiter = ','): array
     {
         $arr = Value::val($val);

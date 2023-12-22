@@ -8,9 +8,6 @@ use Illuminate\Support\Str as IlluminateStr;
 
 class Str
 {
-    // todo crc
-    // todo isCrc
-
     protected static function haystackAndNeedles(mixed $haystack, array|string $needles, bool $caseSensitive = true): array
     {
         $needles = IlluminateArr::wrap($needles);

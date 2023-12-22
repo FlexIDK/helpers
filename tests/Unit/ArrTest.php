@@ -5,6 +5,91 @@ use PHPUnit\Framework\TestCase;
 
 class ArrTest extends TestCase
 {
+
+    public function test_dot()
+    {
+
+        $this->assertEquals(
+            [
+                '0.0' => 1,
+                '0.1' => 2,
+                '0.2.3' => 4,
+                '1' => 2,
+            ],
+            Arr::dot([
+                0 => [
+                    0 => 1,
+                    1 => 2,
+                    2 => [
+                        3 => 4,
+                    ],
+                ],
+                1 => 2,
+            ])
+        );
+
+        $this->assertEquals(
+            [
+                '1' => 2,
+                '0.0' => 1,
+                '0.1' => 2,
+                '0.2.3' => 4,
+            ],
+            Arr::dot([
+                1 => 2,
+                0 => [
+                    0 => 1,
+                    1 => 2,
+                    2 => [
+                        3 => 4,
+                    ],
+                ],
+            ])
+        );
+
+        $this->assertEquals(
+            [
+                0 => [
+                    0 => 1,
+                    1 => 2,
+                    2 => [
+                        3 => 4,
+                    ],
+                ],
+                1 => 2,
+            ],
+            Arr::undot([
+                '0.0' => 1,
+                '0.1' => 2,
+                '0.2.3' => 4,
+                '1' => 2,
+            ]),
+        );
+
+        $this->assertEquals(
+            [
+                '0' => 5,
+                '1' => 6,
+                '1.2' => 5,
+                '1.3' => 4,
+                '1.4' => 6,
+            ],
+            Arr::dotMerge(
+                [
+                    0 => 5,
+                    '1.2' => 3,
+                    '1.3' => 4,
+                ],
+                [
+                    1 => 6,
+                    '1.2' => 5,
+                    '1.4' => 6,
+                ]
+            )
+        );
+
+    }
+
     public function test_str(): void
     {
         $this->assertEquals(
