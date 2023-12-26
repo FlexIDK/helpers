@@ -15,6 +15,14 @@ class Number
             return $val;
         }
 
+        if (is_bool($val)) {
+            return $val ? 1 : 0;
+        }
+
+        if (! is_string($val)) {
+            return null;
+        }
+
         $val = (string)$val;
         $val = preg_replace("@\s+@", '', $val);
         $val = str_replace(',', '.', $val);

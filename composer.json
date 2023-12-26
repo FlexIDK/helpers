@@ -4,11 +4,12 @@
   "homepage": "https://github.com/FlexIDK/helpers",
   "description": "One23 Helpers for php && laravel",
   "license": "MIT",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "authors": [
   ],
   "require": {
     "php" : "~8.2",
+    "illuminate/contracts": "~v10",
     "illuminate/support": "~v10",
     "illuminate/database": "~v10",
     "nesbot/carbon": "~2",
@@ -19,7 +20,8 @@
     "phpunit/phpunit": "~10",
     "phpstan/phpstan": "~1.10",
     "laravel/pint": "~v1.13",
-    "nunomaduro/larastan": "~v2"
+    "nunomaduro/larastan": "~v2",
+    "fakerphp/faker": "v1.23.0"
   },
   "suggest": {
     "laravel/framework": "~v10"

@@ -6,11 +6,30 @@ use Illuminate\Support\Arr as IlluminateArr;
 
 class Arr
 {
+    public static function isDot(array $array): bool
+    {
+        foreach ($array as $value) {
+            if (is_array($value)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public static function dotMerge(array ...$arrays): array
     {
         $res = array_shift($arrays);
 
+        if (! static::isDot($res)) {
+            $res = static::dot($res);
+        }
+
         foreach ($arrays as $arr) {
+            if (! static::isDot($arr)) {
+                $arr = static::dot($arr);
+            }
+
             array_walk(
                 $arr,
                 function($val, $key) use (&$res) {
@@ -19,18 +38,39 @@ class Arr
             );
         }
 
+        // remove next level keys
+        foreach ($res as $key => $value) {
+            foreach ($res as $k => $v) {
+                if (str_starts_with($k, $key . '.')) {
+                    unset($res[$k]);
+                }
+            }
+        }
+
         return $res;
     }
 
     public static function undot(array $array): array
     {
+        if (! static::isDot($array)) {
+            return $array;
+        }
+
         return IlluminateArr::undot($array);
     }
 
-    public static function dot(array $array, string $prepend = ''): array
+    public static function dot(array $array, ?string $prepend = null): array
     {
-        $res = [];
+        if (
+            ! $prepend &&
+            self::isDot($array)
+        ) {
+            return $array;
+        }
 
+        //
+
+        $res = [];
         foreach ($array as $key => $value) {
             if (is_array($value) && ! empty($value)) {
                 $arr = static::dot($value, $prepend . $key . '.');

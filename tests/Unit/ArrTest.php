@@ -5,10 +5,93 @@ use PHPUnit\Framework\TestCase;
 
 class ArrTest extends TestCase
 {
+    public function test_dotMerge(): void
+    {
+        $this->assertEquals(
+            [
+                'a.b' => 1,
+                'a.c' => 4,
+                'a.d' => 5,
+                'b.b' => 3,
+                'b.c' => 4,
+                'b.d.e' => 5,
+            ],
+            Arr::dotMerge(
+                [
+                    'a' => [
+                        'b' => 1,
+                        'c' => 2,
+                    ],
+                ],
+                [
+                    'a' => [
+                        'c' => 4,
+                        'd' => 5,
+                    ],
+                    'b' => [
+                        'b' => 3,
+                        'c' => 4,
+                        'd' => [
+                            'e' => 5,
+                        ],
+                    ],
+                ]
+            )
+        );
+
+        $this->assertEquals(
+            [
+                'a.b' => 1,
+                'b.b.c' => 4,
+                'b.b.d' => 5,
+                'b.b.e' => 6,
+            ],
+            Arr::dotMerge(
+                [
+                    'a.b.c' => 1,
+                    'a.b.d' => 2,
+                    'a.b.e' => 3,
+                    'b.b.c' => 3,
+                    'b.b.d' => 2,
+                    'b.b.e' => 1,
+                ],
+                [
+                    'a.b' => 1,
+                    'b.b.c' => 4,
+                    'b.b.d' => 5,
+                    'b.b.e' => 6,
+                ]
+            )
+        );
+
+        $this->assertEquals(
+            [
+                'a.b.c' => 1,
+                'a.b.d' => 3,
+                'a.b.e' => 3,
+                'b.b.c' => 4,
+                'b.b.d' => 5,
+                'b.b.e' => 6,
+
+            ],
+            Arr::dotMerge(
+                [
+                    'a.b.c' => 1,
+                    'a.b.d' => 2,
+                    'a.b.e' => 3,
+                ],
+                [
+                    'a.b.d' => 3,
+                    'b.b.c' => 4,
+                    'b.b.d' => 5,
+                    'b.b.e' => 6,
+                ]
+            )
+        );
+    }
 
     public function test_dot()
     {
-
         $this->assertEquals(
             [
                 '0.0' => 1,
@@ -70,24 +153,20 @@ class ArrTest extends TestCase
             [
                 '0' => 5,
                 '1' => 6,
-                '1.2' => 5,
-                '1.3' => 4,
-                '1.4' => 6,
+                '2' => 6,
             ],
             Arr::dotMerge(
                 [
                     0 => 5,
                     '1.2' => 3,
                     '1.3' => 4,
+                    2 => 6,
                 ],
                 [
                     1 => 6,
-                    '1.2' => 5,
-                    '1.4' => 6,
                 ]
             )
         );
-
     }
 
     public function test_str(): void
