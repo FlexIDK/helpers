@@ -8,6 +8,22 @@ class NumberTest extends TestCase
     public function test_val(): void
     {
         $this->assertTrue(
+            Number::val(true) === 1
+        );
+
+        $this->assertTrue(
+            Number::val(false) === 0
+        );
+
+        $this->assertTrue(
+            is_null(Number::val([]))
+        );
+
+        $this->assertTrue(
+            is_null(Number::val(new \stdClass()))
+        );
+
+        $this->assertTrue(
             is_int(Number::val(123))
         );
 

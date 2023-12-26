@@ -13,6 +13,8 @@ abstract class AbstractDatetime
 
     public static function val(mixed $val, mixed $default = null): ?CarbonInterface
     {
+        $val = Value::val($val);
+
         $res = static::parse($val);
         if (! $res && $default) {
             $res = static::parse($default);

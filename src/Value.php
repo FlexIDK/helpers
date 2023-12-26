@@ -2,10 +2,16 @@
 
 namespace One23\Helpers;
 
+use One23\Helpers\Exceptions\Value as Exception;
+
 class Value
 {
     public static function val($value, ...$args)
     {
+        if (is_resource($value)) {
+            throw new Exception('Resource is not supported');
+        }
+
         if (
             is_string($value)
             || is_numeric($value)
@@ -28,6 +34,10 @@ class Value
 
         if (is_object($value) && method_exists($value, 'toString')) {
             return $value->toString();
+        }
+
+        if (is_object($value) && method_exists($value, 'toArray')) {
+            return (array)$value->toArray();
         }
 
         if ($value instanceof \UnitEnum) {

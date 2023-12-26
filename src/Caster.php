@@ -42,49 +42,44 @@ class Caster
         return $res;
     }
 
-    public static function val($val, ?Enums\CasterType $type = null, ?array $filters = null)
+    public static function val(mixed $val, ?Enums\CasterType $type = null, ?array $filters = null)
     {
         $val = Value::val($val);
-        if (is_null($type)) {
-            return $val;
-        }
 
-        $res = match (self::normalizeType($type)) {
-            Enums\CasterType::Boolean => Value::bool($val, true),
-            Enums\CasterType::Str => Str::val($val, null, false),
-            Enums\CasterType::Int => Number::int($val),
-            Enums\CasterType::Float => Number::float($val),
+        if ($type) {
+            $val = match (self::normalizeType($type)) {
+                Enums\CasterType::Boolean => Value::bool($val, true),
+                Enums\CasterType::Str => Str::val($val, null, false),
+                Enums\CasterType::Int => Number::int($val),
+                Enums\CasterType::Float => Number::float($val),
 
-            Enums\CasterType::Datetime => Datetime::val($val)
-                ?->toDateTimeString(),
-            Enums\CasterType::Date => Date::val($val)
-                ?->toDateString(),
-            Enums\CasterType::Carbon => Datetime::val($val),
+                Enums\CasterType::Datetime => Datetime::val($val)
+                    ?->toDateTimeString(),
+                Enums\CasterType::Date => Date::val($val)
+                    ?->toDateString(),
+                Enums\CasterType::Carbon => Datetime::val($val),
 
-            Enums\CasterType::Arr => is_array($val) ? $val : [],
+                Enums\CasterType::Arr => is_array($val) ? $val : [],
 
-            Enums\CasterType::ArrOfInt => array_map(function($v): ?int {
-                return Number::int($v);
-            }, is_array($val) ? $val : []),
-            Enums\CasterType::ArrOfFloat => array_map(function($v): ?float {
-                return Number::float($v);
-            }, is_array($val) ? $val : []),
-            Enums\CasterType::ArrOfStr => array_map(function($v): ?string {
-                return Str::val($v, null, false);
-            }, is_array($val) ? $val : []),
-        };
-
-        if (empty($filters)) {
-            return $res;
+                Enums\CasterType::ArrOfInt => array_map(function($v): ?int {
+                    return Number::int($v);
+                }, is_array($val) ? $val : []),
+                Enums\CasterType::ArrOfFloat => array_map(function($v): ?float {
+                    return Number::float($v);
+                }, is_array($val) ? $val : []),
+                Enums\CasterType::ArrOfStr => array_map(function($v): ?string {
+                    return Str::val($v, null, false);
+                }, is_array($val) ? $val : []),
+            };
         }
 
         return self::applyFilters(
-            $res,
+            $val,
             $filters
         );
     }
 
-    protected static function applyFilters(mixed $val, array $filters): mixed
+    protected static function applyFilters(mixed $val, ?array $filters = null): mixed
     {
         if (empty($filters)) {
             return $val;
@@ -139,31 +134,31 @@ class Caster
                 );
 
             case Enums\CasterFilter::Gt0:
-                return static::apply($val, function($val) {
+                return static::apply2value($val, function($val) {
                     return is_numeric($val) && $val > 0
                         ? $val
                         : null;
                 });
 
             case Enums\CasterFilter::Gte0:
-                return static::apply($val, function($val) {
+                return static::apply2value($val, function($val) {
                     return is_numeric($val) && $val >= 0
                         ? $val
                         : null;
                 });
 
             case Enums\CasterFilter::Trim:
-                return static::apply($val, function($val) {
+                return static::apply2value($val, function($val) {
                     return Str::val($val);
                 });
 
             case Enums\CasterFilter::Lower:
-                return static::apply($val, function($val) {
+                return static::apply2value($val, function($val) {
                     return is_string($val) ? mb_strtolower($val) : null;
                 });
 
             case Enums\CasterFilter::Upper:
-                return static::apply($val, function($val) {
+                return static::apply2value($val, function($val) {
                     return is_string($val) ? mb_strtoupper($val) : null;
                 });
 
@@ -172,7 +167,7 @@ class Caster
         }
     }
 
-    protected static function apply(mixed $val, \Closure $closure): mixed
+    protected static function apply2value(mixed $val, \Closure $closure): mixed
     {
         if (is_array($val)) {
             return array_map(function($val) use ($closure) {
