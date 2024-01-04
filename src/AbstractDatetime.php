@@ -16,8 +16,8 @@ abstract class AbstractDatetime
         $val = Value::val($val);
 
         $res = static::parse($val);
-        if (! $res && $default) {
-            $res = static::parse($default);
+        if (is_null($res) && !is_null($default)) {
+            $res = static::val($default);
         }
 
         return $res ?: null;
@@ -128,15 +128,11 @@ abstract class AbstractDatetime
         }
     }
 
-    public static function toDateString(mixed $value, bool $defaultNow = false): ?string
+    public static function toDateString(mixed $value, mixed $default = null): ?string
     {
-        $res = static::parse($value);
-        if (! $res) {
-            if (! $defaultNow) {
-                return null;
-            }
-
-            $res = static::parse('now');
+        $res = static::val($value, $default);
+        if (is_null($res)) {
+            return null;
         }
 
         return $res->toDateString();

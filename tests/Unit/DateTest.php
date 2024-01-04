@@ -19,7 +19,12 @@ class DateTest extends TestCase
         );
 
         $this->assertNull(
-            Date::toDateString('abcdefg', false)
+            Date::toDateString('abcdefg', null)
+        );
+
+        $this->assertEquals(
+            Date::now()->toDateString(),
+            Date::toDateString('abcdefg', 'now')
         );
     }
 

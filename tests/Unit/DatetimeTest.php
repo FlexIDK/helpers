@@ -206,7 +206,12 @@ class DatetimeTest extends TestCase
         );
 
         $this->assertNull(
-            Datetime::toDateString('abcdefg', false)
+            Datetime::toDateString('abcdefg', null)
+        );
+
+        $this->assertEquals(
+            Datetime::now()->toDateString(),
+            Datetime::toDateString('abcdefg', 'now')
         );
     }
 
@@ -225,11 +230,11 @@ class DatetimeTest extends TestCase
         $time = time();
         $this->assertEquals(
             date('Y-m-d H:i:s', $time),
-            Datetime::toDateTimeString('abcdefg', true)
+            Datetime::toDateTimeString('abcdefg', $time)
         );
 
         $this->assertNull(
-            Datetime::toDateTimeString('abcdefg', false)
+            Datetime::toDateTimeString('abcdefg', null)
         );
     }
 
