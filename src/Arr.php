@@ -169,7 +169,7 @@ class Arr
         array $options = []
     ): array {
         $arr = Value::val($val);
-        if (! $arr) {
+        if (is_null($arr)) {
             return [];
         }
 

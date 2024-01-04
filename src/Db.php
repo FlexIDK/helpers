@@ -90,7 +90,7 @@ class Db
     }
 
     /**
-     * @param array{connectionName: ?string, disableForeignKeyChecks: ?bool, forceRollback: ?bool} $options
+     * @param  array{connectionName: ?string, disableForeignKeyChecks: ?bool, forceRollback: ?bool}  $options
      */
     public static function transaction(
         \Closure $func,
@@ -98,8 +98,8 @@ class Db
         array $options = [],
     ) {
         $connectionName = $options['connectionName'] ?? null;
-        $disableForeignKeyChecks = !! ($options['disableForeignKeyChecks'] ?? false);
-        $forceRollback = !! ($options['forceRollback'] ?? false);
+        $disableForeignKeyChecks = (bool)($options['disableForeignKeyChecks'] ?? false);
+        $forceRollback = (bool)($options['forceRollback'] ?? false);
 
         $if = Value::val($if);
         if ($if === false) {

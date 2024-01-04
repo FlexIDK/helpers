@@ -271,6 +271,26 @@ class ArrTest extends TestCase
     public function test_ids(): void
     {
         $this->assertEquals(
+            [0],
+            Arr::ids('0', 0)
+        );
+
+        $this->assertEquals(
+            [0],
+            Arr::ids(0, 0)
+        );
+
+        $this->assertEquals(
+            [],
+            Arr::ids(0, 1)
+        );
+
+        $this->assertEquals(
+            [3, 2, 1, 4, 5],
+            Arr::ids([3, 2, 1, 2, 3, 1, 4, 5, 5], null, 5)
+        );
+
+        $this->assertEquals(
             [1, 2, 3, 4, 5],
             Arr::ids([1, 2, 3, 1, 2, 3, 4, 5, 6, 7], null, 5)
         );
