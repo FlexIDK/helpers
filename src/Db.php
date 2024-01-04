@@ -89,13 +89,18 @@ class Db
         return true;
     }
 
+    /**
+     * @param array{connectionName: ?string, disableForeignKeyChecks: ?bool, forceRollback: ?bool} $options
+     */
     public static function transaction(
         \Closure $func,
         mixed $if = null,
-        bool $foreignKeyChecks = false,
-        bool $forceRollback = false,
-        ?string $connectionName = null,
+        array $options = [],
     ) {
+        $connectionName = $options['connectionName'] ?? null;
+        $disableForeignKeyChecks = !! ($options['disableForeignKeyChecks'] ?? false);
+        $forceRollback = !! ($options['forceRollback'] ?? false);
+
         $if = Value::val($if);
         if ($if === false) {
             return null;
@@ -107,14 +112,14 @@ class Db
             return $func();
         } else {
             $db->beginTransaction();
-            if ($foreignKeyChecks) {
+            if ($disableForeignKeyChecks) {
                 $db->query('SET foreign_key_checks = 0');
             }
 
             try {
                 $return = $func();
 
-                if ($foreignKeyChecks) {
+                if ($disableForeignKeyChecks) {
                     $db->query('SET foreign_key_checks = 1');
                 }
 
@@ -124,7 +129,7 @@ class Db
                     $db->rollBack();
                 }
             } catch (\Exception $exception) {
-                if ($foreignKeyChecks) {
+                if ($disableForeignKeyChecks) {
                     $db->query('SET foreign_key_checks = 1');
                 }
 
