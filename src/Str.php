@@ -5,9 +5,47 @@ namespace One23\Helpers;
 use Egulias\EmailValidator;
 use Illuminate\Support\Arr as IlluminateArr;
 use Illuminate\Support\Str as IlluminateStr;
+use One23\Helpers\Exceptions\Str as Exception;
 
 class Str
 {
+    public static function md5(mixed $val, int $length = 32): string
+    {
+        $length = Number::int($length, null, 1, 32);
+        if (! $length) {
+            throw new Exception('Invalid length');
+        }
+
+        $val = static::val($val);
+        if (is_null($val)) {
+            throw new Exception('Value is null');
+        }
+
+        return mb_substr(
+            md5($val ?: ''),
+            0, $length
+        );
+    }
+
+    public static function isCrc(mixed $val, $length = 32): bool
+    {
+        $val = static::val($val);
+
+        if (! is_string($val)) {
+            return false;
+        }
+
+        if (mb_strlen($val) !== $length) {
+            return false;
+        }
+
+        if (preg_match('@^[a-f0-9]+$@ui', $val)) {
+            return true;
+        }
+
+        return false;
+    }
+
     protected static function haystackAndNeedles(mixed $haystack, array|string $needles, bool $caseSensitive = true): array
     {
         $needles = IlluminateArr::wrap($needles);

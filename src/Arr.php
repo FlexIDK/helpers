@@ -3,9 +3,81 @@
 namespace One23\Helpers;
 
 use Illuminate\Support\Arr as IlluminateArr;
+use Illuminate\Support\Collection as IlluminateCollection;
 
 class Arr
 {
+    /**
+     * @param  array{uniq: ?bool, type: ?string}  $options
+     */
+    public static function keyMap(
+        array|IlluminateCollection $val,
+        string $key,
+        array $options = [],
+    ): array {
+        $res = [];
+        if ($val instanceof IlluminateCollection) {
+            $res = $val->map(function($item) use ($key) {
+                return is_array($item) || is_object($item)
+                    ? ($item[$key] ?? null)
+                    : $item;
+            })->toArray();
+        } elseif (is_array($val)) {
+            $res = array_map(function($item) use ($key) {
+                return is_array($item) || is_object($item)
+                    ? ($item[$key] ?? null)
+                    : $item;
+            }, $val);
+        }
+
+        $res = static::onlyType(
+            $res,
+            $options['type'] ?? null,
+            [
+                'uniq' => $options['uniq'] ?? false,
+            ]
+        );
+
+        return $res;
+    }
+
+    /**
+     * @param  array{uniq: ?bool, strict: ?bool}  $options
+     */
+    public static function onlyType(
+        array $val,
+        ?string $type = null,
+        array $options = []
+    ): array {
+        $res = array_map(function($item) use ($type) {
+            return match ($type) {
+                'integer' => is_int($item) ? $item : null,
+                'string' => is_string($item) ? $item : null,
+                'float' => is_float($item) || is_int($item) ? $item : null,
+                'numeric' => is_numeric($item)
+                    ? Number::val($item) : null,
+                'array' => is_array($item) ? $item : null,
+                default => $item,
+            };
+        }, $val);
+
+        if ($options['uniq'] ?? false) {
+            $sort = match ($type) {
+                'integer', 'float', 'numeric' => SORT_NUMERIC,
+                'string' => SORT_STRING,
+                default => SORT_REGULAR,
+            };
+
+            $res = array_values(
+                array_unique($res, $sort)
+            );
+        }
+
+        return array_values(
+            static::filterNull($res)
+        );
+    }
+
     public static function isDot(array $array): bool
     {
         foreach ($array as $value) {
@@ -89,12 +161,22 @@ class Arr
         return $res;
     }
 
-    public static function flat(mixed $val, $delimiter = ','): array
-    {
+    /**
+     * @param  array{type: ?string, delimiter: ?string}  $options
+     */
+    public static function flat(
+        mixed $val,
+        array $options = []
+    ): array {
         $arr = Value::val($val);
         if (! $arr) {
             return [];
         }
+
+        $delimiter = $options['delimiter'] ?? ',';
+        $delimiter = $delimiter ?: ',';
+
+        //
 
         $arr = IlluminateArr::wrap($arr);
         $arr = IlluminateArr::flatten($arr);
@@ -123,16 +205,20 @@ class Arr
         }, $arr);
         $arr = IlluminateArr::flatten($arr);
 
-        $arr = static::filterNull($arr);
-
-        return array_values(
-            array_unique($arr, SORT_REGULAR)
+        return static::onlyType(
+            $arr,
+            $options['type'] ?? null,
+            [
+                'uniq' => true,
+            ]
         );
     }
 
     public static function ids(mixed $val, ?int $min = null, ?int $max = null): array
     {
-        $arr = static::flat($val);
+        $arr = static::flat($val, [
+            'type' => 'integer',
+        ]);
 
         $arr = array_map(
             fn($item) => Number::int($item, null, $min, $max),
@@ -146,19 +232,11 @@ class Arr
 
     public static function str(mixed $val): array
     {
-        $arr = static::flat($val);
-
-        $arr = array_map(
-            function($item) {
-                return is_string($item)
-                    ? Str::val($item)
-                    : null;
-            },
-            $arr
-        );
-
-        return array_values(
-            static::filterNull($arr)
+        return static::flat(
+            $val,
+            [
+                'type' => 'string',
+            ]
         );
     }
 

@@ -28,6 +28,12 @@ class Value
             );
         }
 
+        if ($value instanceof \UnitEnum) {
+            return $value instanceof \BackedEnum
+                ? $value->value
+                : $value->name;
+        }
+
         if ($value instanceof \Stringable) {
             return (string)$value;
         }
@@ -38,12 +44,6 @@ class Value
 
         if (is_object($value) && method_exists($value, 'toArray')) {
             return (array)$value->toArray();
-        }
-
-        if ($value instanceof \UnitEnum) {
-            return $value instanceof \BackedEnum
-                ? $value->value
-                : $value->name;
         }
 
         return $value;

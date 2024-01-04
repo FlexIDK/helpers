@@ -5,6 +5,82 @@ use PHPUnit\Framework\TestCase;
 
 class ArrTest extends TestCase
 {
+    public function test_onlyType(): void
+    {
+        $this->assertEquals(
+            [1, 2, 3],
+            Arr::onlyType([1, 2, 3, 1, 2, 3, '4', '5', [], true], 'integer', ['uniq' => true])
+        );
+
+        $this->assertEquals(
+            [1, 2, 3],
+            Arr::onlyType([1, 2, 3, '4', '5', [], true], 'integer')
+        );
+
+        $this->assertEquals(
+            ['4', '5'],
+            Arr::onlyType([1, 2, 3, '4', '5', [], true], 'string')
+        );
+
+        $this->assertEquals(
+            [1, 2.2, 3.3, 4, 5],
+            Arr::onlyType([1, 2.2, 3.3, '4', '5', [], true], 'numeric')
+        );
+
+        $this->assertEquals(
+            [1, 2.2, 3.3],
+            Arr::onlyType([1, 2.2, 3.3, '4', '5', [], true], 'float')
+        );
+    }
+
+    public function test_keyMap(): void
+    {
+        $this->assertEquals(
+            [1, 2],
+            Arr::keyMap([
+                1,
+                ['id' => 1],
+                ['id' => 2],
+                ['id' => '3'],
+                ['id' => '2'],
+                ['id' => '1'],
+            ], 'id', ['uniq' => true, 'type' => 'integer'])
+        );
+
+        $this->assertEquals(
+            [1, 2, 3],
+            Arr::keyMap([
+                ['id' => 1],
+                ['id' => 2],
+                ['id' => '3'],
+                ['id' => '2'],
+                ['id' => '1'],
+            ], 'id', ['uniq' => true])
+        );
+
+        $this->assertEquals(
+            ['a', 'b', 'c', '2', '1'],
+            Arr::keyMap([
+                ['id' => 'a'],
+                ['id' => 'b'],
+                ['id' => 'c'],
+                ['id' => '2'],
+                ['id' => '1'],
+            ], 'id', ['uniq' => true, 'type' => 'string'])
+        );
+
+        $this->assertEquals(
+            ['a', 'b', 'c'],
+            Arr::keyMap([
+                ['id' => 'a'],
+                ['id' => 'b'],
+                ['id' => 'c'],
+                ['id' => 2],
+                ['id' => 1],
+            ], 'id', ['uniq' => true, 'type' => 'string'])
+        );
+    }
+
     public function test_dotMerge(): void
     {
         $this->assertEquals(
@@ -173,6 +249,11 @@ class ArrTest extends TestCase
     {
         $this->assertEquals(
             ['a', 'b', 'c'],
+            Arr::str('a,b,c,1,2,3')
+        );
+
+        $this->assertEquals(
+            ['a', 'b', 'c'],
             Arr::str(['a', ['b', ['c']]])
         );
 
@@ -189,6 +270,11 @@ class ArrTest extends TestCase
 
     public function test_ids(): void
     {
+        $this->assertEquals(
+            [1, 2, 3, 4, 5],
+            Arr::ids([1, 2, 3, 1, 2, 3, 4, 5, 6, 7], null, 5)
+        );
+
         // test ids
         $this->assertEquals(
             [1, 2, 3],
@@ -203,6 +289,11 @@ class ArrTest extends TestCase
         $this->assertEquals(
             [1, 2, 3],
             Arr::ids([1, 2, 3, 'a', 'b', 'c'])
+        );
+
+        $this->assertEquals(
+            [1, 2, 3],
+            Arr::ids([1, 2, 3, 4.3, 5.5, 6.6, 'a', 'b', 'c'])
         );
 
         $this->assertEquals(
@@ -231,8 +322,23 @@ class ArrTest extends TestCase
     public function test_flat(): void
     {
         $this->assertEquals(
+            [1, 2, 3],
+            Arr::flat('1,2,3,a,b,c', ['type' => 'integer'])
+        );
+
+        $this->assertEquals(
+            [1, 2, 3, 4, 5, 6],
+            Arr::flat([1, 2, 3, '4', '5', '6', 2, 1, 3], ['type' => 'integer'])
+        );
+
+        $this->assertEquals(
+            ['a', 'b', 'c'],
+            Arr::flat('1,2,3,a,b,c', ['type' => 'string'])
+        );
+
+        $this->assertEquals(
             [1, 'a', 'b', 'c', 2, 3, 6, 'g', 7],
-            Arr::flat([1, ['a,b,c', '1,2,3'], 'd' => 6, 'e' => '2', 'f' => 'g,7'], ',')
+            Arr::flat([1, ['a,b,c', '1,2,3'], 'd' => 6, 'e' => '2', 'f' => 'g,7'])
         );
 
         $this->assertEquals(
@@ -252,7 +358,7 @@ class ArrTest extends TestCase
 
         $this->assertEquals(
             [1, 2, 3],
-            Arr::flat([1, [2, [3]]], ',')
+            Arr::flat([1, [2, [3]]])
         );
     }
 

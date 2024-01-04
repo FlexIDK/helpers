@@ -5,6 +5,52 @@ use PHPUnit\Framework\TestCase;
 
 class StrTest extends TestCase
 {
+    public function test_md5(): void
+    {
+        $this->assertMatchesRegularExpression(
+            '/^[a-f0-9]{32}$/',
+            Str::md5('abc')
+        );
+
+        $this->assertMatchesRegularExpression(
+            '/^[a-f0-9]{8}$/',
+            Str::md5('abc', 8)
+        );
+
+        try {
+            Str::md5(null);
+            Str::md5('abc', 0);
+            Str::md5('abc', 33);
+
+            $this->assertTrue(false);
+        } catch (Exception $e) {
+            $this->assertTrue(true);
+        }
+    }
+
+    public function test_is_crc(): void
+    {
+        $this->assertTrue(
+            Str::isCrc('1234567890abcdef1234567890abcdef')
+        );
+
+        $this->assertTrue(
+            Str::isCrc('1234567890ABCDEF1234567890ABCDEF')
+        );
+
+        $this->assertFalse(
+            Str::isCrc('1234567890abcdef1234567890abcde')
+        );
+
+        $this->assertTrue(
+            Str::isCrc('1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef', 64)
+        );
+
+        $this->assertFalse(
+            Str::isCrc('1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcde', 64)
+        );
+    }
+
     public function test_end_with(): void
     {
         $this->assertTrue(
