@@ -8,7 +8,9 @@ use Illuminate\Contracts\Support\Responsable;
 
 class ResponseApi implements \Stringable, Arrayable, Jsonable, Responsable
 {
-    protected string $resultKey = 'result';
+    protected ?string $resultKey = null;
+
+    protected static string $globalResultKey = 'result';
 
     protected bool $isSuccess = true;
 
@@ -54,7 +56,7 @@ class ResponseApi implements \Stringable, Arrayable, Jsonable, Responsable
         ) {
             return is_array($this->data)
                 ? $this->data
-                : [$this->resultKey => $this->data];
+                : [$this->getResultKey() => $this->data];
         }
 
         //
@@ -78,31 +80,43 @@ class ResponseApi implements \Stringable, Arrayable, Jsonable, Responsable
 
         //
 
+        $isDebug = $this->getDebug();
         if ($this->isSuccess) {
             return [
                 'success' => $this->isSuccess,
-                $this->resultKey => $this->data,
+                $this->getResultKey() => $this->data,
+                ...($isDebug ? ['is_debug' => $this->getDebug()] : []),
                 ...$extra,
             ];
         }
 
         $res = [
             'success' => $this->isSuccess,
-            'error' => [
-                'message' => null,
-                'code' => null,
-            ],
+            ...($isDebug ? ['is_debug' => $this->getDebug()] : []),
             ...$extra,
         ];
 
         $res['error'] = [
-            ...$res['error'],
+            ...[
+                'message' => null,
+                'code' => null,
+            ],
 
             ...(is_array($this->data) ? $this->data : []),
 
             'message' => $this->errorMessage,
             'code' => $this->errorCode,
         ];
+
+        // error fields fix types
+
+        if (array_key_exists('fields', $res['error'])) {
+            $fields = $res['error']['fields'] ?? [];
+            $fields = is_array($fields) ? $fields : [];
+
+            $res['error']['fields'] = $fields;
+            $res['error']['fields_keys'] = array_keys($fields);
+        }
 
         return $res;
     }
@@ -117,7 +131,7 @@ class ResponseApi implements \Stringable, Arrayable, Jsonable, Responsable
         );
     }
 
-    protected function isSuccess(bool $val): static
+    protected function setIsSuccess(bool $val): static
     {
         $this->isSuccess = $val;
 
@@ -138,7 +152,7 @@ class ResponseApi implements \Stringable, Arrayable, Jsonable, Responsable
         static::$globalDebug = $val;
     }
 
-    public function getDebug(): bool
+    protected function getDebug(): bool
     {
         return $this->debug
             ?? (static::$globalDebug ?? false);
@@ -146,7 +160,31 @@ class ResponseApi implements \Stringable, Arrayable, Jsonable, Responsable
 
     //
 
-    public function pretty(bool $val): static
+    public function setResultKey(?string $val = null): static
+    {
+        $this->resultKey = $val ?: null;
+
+        return $this;
+    }
+
+    public static function setGlobalResultKey(string $val): void
+    {
+        if (! $val) {
+            throw new \InvalidArgumentException('Global result key cannot be empty');
+        }
+
+        static::$globalResultKey = $val;
+    }
+
+    protected function getResultKey(): string
+    {
+        return $this->resultKey
+            ?: static::$globalResultKey;
+    }
+
+    //
+
+    public function setPretty(bool $val): static
     {
         $this->pretty = $val;
 
@@ -158,7 +196,7 @@ class ResponseApi implements \Stringable, Arrayable, Jsonable, Responsable
         static::$globalPretty = $val;
     }
 
-    public function getPretty(): bool
+    protected function getPretty(): bool
     {
         return $this->pretty
             ?? (static::$globalPretty ?? false);
@@ -166,13 +204,25 @@ class ResponseApi implements \Stringable, Arrayable, Jsonable, Responsable
 
     //
 
-    public static function setGlobalExtra(?\Closure $closure = null): void
+    public static function setGlobalExtra(\Closure $closure): int
     {
-        if ($closure === null) {
+        static::$globalExtra[] = $closure;
+
+        return array_key_last(static::$globalExtra);
+    }
+
+    public static function removeGlobalExtra(?int $key = null): void
+    {
+        if ($key === null) {
             static::$globalExtra = [];
         } else {
-            static::$globalExtra[] = $closure;
+            unset(static::$globalExtra[$key]);
         }
+    }
+
+    public static function resetGlobalExtra(): void
+    {
+        static::removeGlobalExtra(null);
     }
 
     //
@@ -193,7 +243,7 @@ class ResponseApi implements \Stringable, Arrayable, Jsonable, Responsable
 
     public function setError(string $message, ?int $code = null): static
     {
-        $this->isSuccess(false);
+        $this->setIsSuccess(false);
 
         $this->errorMessage = $message;
         $this->errorCode = $code;
@@ -217,7 +267,7 @@ class ResponseApi implements \Stringable, Arrayable, Jsonable, Responsable
     public static function raw(mixed $data): ResponseApi
     {
         return (new static())
-            ->isSuccess(true)
+            ->setIsSuccess(true)
             ->setData($data)
             ->isRaw(true);
     }
@@ -225,7 +275,7 @@ class ResponseApi implements \Stringable, Arrayable, Jsonable, Responsable
     public static function ok(mixed $data): ResponseApi
     {
         return (new static())
-            ->isSuccess(true)
+            ->setIsSuccess(true)
             ->setData($data);
     }
 

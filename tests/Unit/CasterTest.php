@@ -19,7 +19,7 @@ class CasterTest extends TestCase
     protected function data(): array
     {
         return [
-            'id' => (string)$this->faker()->randomNumber(),
+            'id' => (string)$this->faker()->numberBetween(1, 1000),
             'type_ids' => [0, '1', '2', '3', 2, 4, -1],
             'tags' => [
                 1,

@@ -5,6 +5,120 @@ use PHPUnit\Framework\TestCase;
 
 class ResponseApiTest extends TestCase
 {
+    public function test_is_debug(): void
+    {
+        $api = ResponseApi::ok([]);
+
+        ResponseApi::setGlobalDebug(true);
+
+        $this->assertTrue($api
+            ->toArray()['is_debug']);
+
+        $this->assertFalse($api
+            ->setDebug(false)
+            ->toArray()['is_debug'] ?? false);
+
+        //
+
+        $api = ResponseApi::ok([]);
+        ResponseApi::setGlobalDebug(false);
+
+        $this->assertFalse($api
+            ->toArray()['is_debug'] ?? false);
+
+        $this->assertTrue($api
+            ->setDebug(true)
+            ->toArray()['is_debug']);
+    }
+
+    public function test_result_key(): void
+    {
+        $api = ResponseApi::ok([]);
+
+        $this->assertArrayHasKey(
+            'result',
+            $api->toArray()
+        );
+
+        ResponseApi::setGlobalResultKey('key1');
+
+        $this->assertArrayHasKey(
+            'key1',
+            $api->toArray()
+        );
+
+        $this->assertArrayHasKey(
+            'key2',
+            $api->setResultKey('key2')->toArray()
+        );
+
+        $this->assertArrayNotHasKey(
+            'key1',
+            $api->toArray()
+        );
+
+        $this->assertArrayNotHasKey(
+            'result',
+            $api->toArray()
+        );
+
+        ResponseApi::setGlobalResultKey('result');
+    }
+
+    public function test_global_extra()
+    {
+        $api = ResponseApi::ok([]);
+
+        $key1 = ResponseApi::setGlobalExtra(function() {
+            return [
+                'global1' => 'extra',
+            ];
+        });
+
+        $key2 = ResponseApi::setGlobalExtra(function() {
+            return [
+                'global2' => 'extra',
+            ];
+        });
+
+        $this->assertArrayHasKey(
+            'global1',
+            $api->toArray()
+        );
+
+        $this->assertArrayHasKey(
+            'global2',
+            $api->toArray()
+        );
+
+        ResponseApi::removeGlobalExtra($key1);
+
+        $this->assertArrayNotHasKey(
+            'global1',
+            $api->toArray()
+        );
+
+        $key3 = ResponseApi::setGlobalExtra(function() {
+            return [
+                'global3' => 'extra',
+            ];
+        });
+
+        $this->assertArrayHasKey(
+            'global3',
+            $api->toArray()
+        );
+
+        ResponseApi::resetGlobalExtra();
+
+        foreach (['global1', 'global2', 'global3'] as $key) {
+            $this->assertArrayNotHasKey(
+                $key,
+                $api->toArray()
+            );
+        }
+    }
+
     public function test_json_ok()
     {
         $res = ResponseApi::ok([
@@ -15,7 +129,7 @@ class ResponseApiTest extends TestCase
 
         $this->assertEquals(
             '{"success":true,"result":{"id":1,"name":"John","age":30}}',
-            $res->pretty(false)->toJson()
+            $res->setPretty(false)->toJson()
         );
 
         ResponseApi::setGlobalExtra(function() {
@@ -26,13 +140,13 @@ class ResponseApiTest extends TestCase
 
         $this->assertEquals(
             '{"success":true,"result":true,"global":"extra"}',
-            ResponseApi::ok(true)->pretty(false)->toJson()
+            ResponseApi::ok(true)->setPretty(false)->toJson()
         );
     }
 
     public function test_json_error()
     {
-        ResponseApi::setGlobalExtra(null);
+        ResponseApi::resetGlobalExtra();
 
         $res = ResponseApi::error(
             'Error message',
@@ -46,8 +160,8 @@ class ResponseApiTest extends TestCase
         );
 
         $this->assertEquals(
-            '{"success":false,"error":{"message":"Error message","code":100,"fields":{"name":"Name is required","age":"Age must be greater than 0"}}}',
-            (string)$res->pretty(false)->toJson()
+            '{"success":false,"error":{"message":"Error message","code":100,"fields":{"name":"Name is required","age":"Age must be greater than 0"},"fields_keys":["name","age"]}}',
+            (string)$res->setPretty(false)->toJson()
         );
 
         $res = ResponseApi::error(
@@ -56,12 +170,12 @@ class ResponseApiTest extends TestCase
         );
 
         $this->assertEquals(
-            '{"success":false,"error":{"message":"Error message","code":100,"fields":[]}}',
-            $res->pretty(false)->toJson()
+            '{"success":false,"error":{"message":"Error message","code":100,"fields":[],"fields_keys":[]}}',
+            $res->setPretty(false)->toJson()
         );
 
         $this->assertEquals(
-            '{"success":false,"error":{"message":"Error message","code":100,"fields":[],"haha":123}}',
+            '{"success":false,"error":{"message":"Error message","code":100,"fields":[],"haha":123,"fields_keys":[]}}',
             ResponseApi::error(
                 'Error message',
                 100,
@@ -69,32 +183,32 @@ class ResponseApiTest extends TestCase
                     'haha' => 123,
                 ]
             )
-                ->pretty(false)->toJson()
+                ->setPretty(false)->toJson()
         );
     }
 
     public function test_json_raw()
     {
-        ResponseApi::setGlobalExtra(null);
+        ResponseApi::resetGlobalExtra();
 
         $this->assertEquals(
             '1',
-            ResponseApi::raw(1)->pretty(false)->toArray()['result']
+            ResponseApi::raw(1)->setPretty(false)->toArray()['result']
         );
 
         $this->assertEquals(
             '1',
-            ResponseApi::raw(1)->pretty(false)->toJson()
+            ResponseApi::raw(1)->setPretty(false)->toJson()
         );
 
         $this->assertEquals(
             'true',
-            ResponseApi::raw(true)->pretty(false)->toJson()
+            ResponseApi::raw(true)->setPretty(false)->toJson()
         );
 
         $this->assertEquals(
             'null',
-            ResponseApi::raw(null)->pretty(false)->toJson()
+            ResponseApi::raw(null)->setPretty(false)->toJson()
         );
 
         $this->assertEquals(
@@ -103,19 +217,19 @@ class ResponseApiTest extends TestCase
                 'id' => 1,
                 'name' => 'John',
                 'age' => 30,
-            ])->pretty(false)->toJson()
+            ])->setPretty(false)->toJson()
         );
     }
 
     public function test_json_exception()
     {
-        ResponseApi::setGlobalExtra(null);
+        ResponseApi::resetGlobalExtra();
 
         $this->assertEquals(
             '{"success":false,"error":{"message":"Error message","code":100,"exception":{"message":"Error message","code":100}}}',
             ResponseApi::exception(
                 new Exception('Error message', 100),
-            )->pretty(false)->toJson()
+            )->setPretty(false)->toJson()
         );
 
         $this->assertEquals(
@@ -125,7 +239,7 @@ class ResponseApiTest extends TestCase
                     'Error message', 100,
                     new Exception('Previous message', 200),
                 ),
-            )->pretty(false)->toJson()
+            )->setPretty(false)->toJson()
         );
 
         $this->assertEquals(
@@ -137,7 +251,7 @@ class ResponseApiTest extends TestCase
                 ),
                 'Error',
                 300
-            )->pretty(false)->toJson()
+            )->setPretty(false)->toJson()
         );
     }
 }

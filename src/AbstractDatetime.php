@@ -16,7 +16,7 @@ abstract class AbstractDatetime
         $val = Value::val($val);
 
         $res = static::parse($val);
-        if (is_null($res) && !is_null($default)) {
+        if (is_null($res) && ! is_null($default)) {
             $res = static::val($default);
         }
 

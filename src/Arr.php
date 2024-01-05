@@ -7,6 +7,9 @@ use Illuminate\Support\Collection as IlluminateCollection;
 
 class Arr
 {
+    use Traits\Arr\KeyStartWith;
+    use Traits\Arr\Substr;
+
     /**
      * @param  array{uniq: ?bool, type: ?string}  $options
      */

@@ -5,6 +5,84 @@ use PHPUnit\Framework\TestCase;
 
 class ArrTest extends TestCase
 {
+    public function test_substr(): void
+    {
+        $this->assertEquals(
+            '{"a":1,"b":2,"c":3}',
+            Arr::substr(['a' => 1, 'b' => 2, 'c' => 3])
+        );
+
+        $this->assertEquals(
+            '{"a":1,"b":2,"c":3}',
+            Arr::substr(['a' => 1, 'b' => 2, 'c' => 3], 32)
+        );
+
+        $this->assertEquals(
+            '{"a":1,"...',
+            Arr::substr(['a' => 1, 'b' => 2, 'c' => 3], 8)
+        );
+    }
+
+    public function test_keyStartWith(): void
+    {
+        $arr = [
+            'abc_1' => 1,
+            'abc_2' => 1,
+            'abc_3' => 1,
+            'xxx_1' => 1,
+            'xxx_2' => 1,
+            'xxx_3' => 1,
+            1 => 1,
+        ];
+
+        $this->assertEquals(
+            [
+                'abc_1' => 1,
+                'abc_2' => 1,
+                'abc_3' => 1,
+            ],
+            Arr::keyStartWith(
+                $arr,
+                'abc_'
+            )
+        );
+
+        $this->assertEquals(
+            [
+                'xxx_1' => 1,
+                'xxx_2' => 1,
+                'xxx_3' => 1,
+            ],
+            Arr::keyStartWith(
+                $arr,
+                'xxx_'
+            )
+        );
+
+        $this->assertEquals(
+            [
+                'abc_1' => 1,
+                'abc_2' => 1,
+                'abc_3' => 1,
+                'xxx_1' => 1,
+                'xxx_2' => 1,
+                'xxx_3' => 1,
+            ],
+            Arr::keyStartWith(
+                $arr,
+                ['abc_', 'xxx_']
+            )
+        );
+
+        $this->assertEquals(
+            [],
+            Arr::keyStartWith(
+                $arr,
+                ['yyy_']
+            )
+        );
+    }
+
     public function test_onlyType(): void
     {
         $this->assertEquals(

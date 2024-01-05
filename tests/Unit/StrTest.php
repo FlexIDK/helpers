@@ -51,6 +51,58 @@ class StrTest extends TestCase
         );
     }
 
+    public function test_with(): void
+    {
+        $text = <<<'TEXT'
+Lorem ipsum sit amet1amet amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor
+TEXT;
+
+        $this->assertFalse(
+            Str::with($text, 'text', false, $match)
+        );
+        $this->assertNull($match);
+
+        $this->assertFalse(
+            Str::with($text, 'it', false, $match)
+        );
+        $this->assertNull($match);
+
+        $this->assertTrue(
+            Str::with($text, 'lorem', false, $match)
+        );
+        $this->assertEquals('lorem', $match);
+
+        $this->assertFalse(
+            Str::with($text, 'LOREM', true, $match)
+        );
+        $this->assertNull($match);
+
+        $this->assertTrue(
+            Str::with($text, 'Lorem', true, $match)
+        );
+        $this->assertEquals('Lorem', $match);
+
+        $this->assertTrue(
+            Str::with($text, 'amet', false, $match)
+        );
+        $this->assertEquals('amet', $match);
+
+        $this->assertTrue(
+            Str::with($text, 'dolor', false, $match)
+        );
+        $this->assertEquals('dolor', $match);
+
+        $this->assertTrue(
+            Str::with($text, 'elit', false, $match)
+        );
+        $this->assertEquals('elit', $match);
+
+        $this->assertTrue(
+            Str::with($text, 'Aenean', false, $match)
+        );
+        $this->assertEquals('aenean', $match);
+    }
+
     public function test_end_with(): void
     {
         $this->assertTrue(
@@ -66,69 +118,80 @@ class StrTest extends TestCase
         );
 
         $this->assertFalse(
-            Str::endWith('abc', 'A')
+            Str::endWith('abc', 'A', true, $match)
         );
+        $this->assertNull($match);
 
         $this->assertFalse(
-            Str::endWith('abc', 'C')
+            Str::endWith('abc', 'C', true, $match)
         );
+        $this->assertNull($match);
 
         $this->assertTrue(
-            Str::endWith('abc', ['e', 'c', 'b'])
+            Str::endWith('abc', ['e', 'c', 'b'], false, $match)
         );
+        $this->assertEquals('c', $match);
     }
 
     public function test_contains(): void
     {
         $this->assertTrue(
-            Str::contains('ABC', 'c', false)
+            Str::contains('ABC', 'c', false, $match)
         );
+        $this->assertEquals('c', $match);
 
         $this->assertTrue(
-            Str::contains('aBC', ['b'], false)
+            Str::contains('aBC', ['b'], false, $match)
         );
+        $this->assertEquals('b', $match);
 
         $this->assertTrue(
             Str::contains('abc', 'a')
         );
 
         $this->assertFalse(
-            Str::contains('abc', 'C')
+            Str::contains('abc', 'C', true, $match)
         );
+        $this->assertNull($match);
 
         $this->assertFalse(
             Str::contains('abc', 'A')
         );
 
         $this->assertTrue(
-            Str::contains('abc', ['e', 'f', 'a'])
+            Str::contains('abc', ['e', 'c', 'f', 'a'], true, $match)
         );
+        $this->assertEquals('c', $match);
     }
 
     public function test_start_with(): void
     {
         $this->assertTrue(
-            Str::startWith('ABC', 'a', false)
+            Str::startWith('abc', ['b', 'c', 'a'], true, $match)
         );
+        $this->assertEquals('a', $match);
 
         $this->assertTrue(
-            Str::startWith('aBC', ['A'], false)
+            Str::startWith('ABC', 'a', false, $match)
         );
+        $this->assertEquals('a', $match);
+
+        $this->assertTrue(
+            Str::startWith('aBC', ['A'], false, $match)
+        );
+        $this->assertEquals('a', $match);
 
         $this->assertTrue(
             Str::startWith('abc', 'a')
         );
 
         $this->assertFalse(
-            Str::startWith('abc', 'b')
+            Str::startWith('abc', 'b', true, $match)
         );
+        $this->assertNull($match);
 
         $this->assertFalse(
             Str::startWith('abc', 'A')
-        );
-
-        $this->assertTrue(
-            Str::startWith('abc', ['b', 'c', 'a'])
         );
     }
 

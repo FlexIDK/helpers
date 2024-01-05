@@ -460,7 +460,7 @@ class ObjectUrl
                 $k = null;
             }
 
-            $newKey = $key . '[' . urlencode($k) . ']';
+            $newKey = $key . '[' . ($k ? urlencode($k) : '') . ']';
 
             if (is_array($v)) {
                 $arr = $this->queryKeyValueArray($v, $newKey);
@@ -534,19 +534,30 @@ class ObjectUrl
         return $res;
     }
 
+    /**
+     * @param  bool|null  $append null: replace, true: append, false: prepend
+     */
     public function setQuery(
         string|array|null $qs = null,
-        ?bool $merge = null
+        ?bool $append = null
     ): static {
+        if (empty($qs)) {
+            $this->components['query'] = [];
+
+            return $this;
+        }
+
+        //
+
         $queryBefore = $this->getQuery();
 
         $res = $this->query2dotArray($qs);
 
         //
 
-        if (is_null($merge)) {
+        if (is_null($append)) {
             $this->components['query'] = Arr::undot($res);
-        } elseif ($merge) {
+        } elseif ($append) {
             $this->components['query'] = Arr::undot(
                 Arr::dotMerge(
                     Arr::dot($queryBefore),

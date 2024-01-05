@@ -337,7 +337,16 @@ class ObjectUrlTest extends TestCase
 
         //
 
-        $url->setQuery('a=b');
+        $url->setQuery('a[]=1&a[]=2&b[a]=1&b[b]=2', true)
+            ->removeQuery(['c', 'd']);
+        $this->assertEquals(
+            'a[]=1&a[]=2&b[a]=1&b[b]=2',
+            $url->getQueryString()
+        );
+
+        //
+
+        $url->setQuery('a=b', null);
         $this->assertEquals(
             'a=b',
             $url->getQueryString()
