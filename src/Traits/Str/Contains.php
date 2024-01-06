@@ -40,7 +40,9 @@ trait Contains
         }, $needles);
 
         $haystack = static::val($haystack);
-        $haystack = $caseSensitive ? $haystack : IlluminateStr::lower($haystack);
+        $haystack = $caseSensitive
+            ? $haystack
+            : ($haystack ? IlluminateStr::lower($haystack) : null);
 
         return [
             $haystack,

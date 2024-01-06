@@ -53,6 +53,11 @@ class StrTest extends TestCase
 
     public function test_with(): void
     {
+        $this->assertFalse(
+            Str::with(null, 'text', false, $match)
+        );
+
+
         $text = <<<'TEXT'
 Lorem ipsum sit amet1amet amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor
 TEXT;
