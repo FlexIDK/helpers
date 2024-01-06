@@ -1,5 +1,6 @@
 <?php
 
+use One23\Helpers\ObjectUrl;
 use One23\Helpers\Url;
 use PHPUnit\Framework\TestCase;
 
@@ -18,13 +19,32 @@ class UrlTest extends TestCase
         $this->assertTrue(Url::isIp('http://[::1]/'));
         $this->assertTrue(Url::isIpV6('http://[::1]/'));
         $this->assertFalse(Url::isIpV4('http://[::1]/'));
+
+        $this->assertFalse(Url::isIpV4('test.ru'));
     }
 
     public function test_is_http(): void
     {
+        $this->assertTrue(Url::isHttp(
+            new ObjectUrl('http://test.ru/')
+        ));
+
+        $this->assertTrue(Url::isHttp([
+            'scheme' => 'https',
+            'host' => 'test.ru',
+        ]));
+
+        $this->assertFalse(Url::isHttp([
+            'scheme' => 'ftp',
+            'host' => 'test.ru',
+        ]));
+
         $this->assertTrue(Url::isHttp('http://test.ru/'));
         $this->assertTrue(Url::isHttp('https://test.ru/'));
+        $this->assertTrue(Url::isHttp('https://127.0.0.1/'));
+        $this->assertTrue(Url::isHttp('https://[::1]/'));
         $this->assertFalse(Url::isHttp('ftp://test.ru/'));
+        $this->assertFalse(Url::isHttp('test.ru'));
     }
 
     public function test_host(): void

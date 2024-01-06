@@ -3,6 +3,7 @@
 namespace One23\Helpers;
 
 use Illuminate\Support\Arr as IlluminateArr;
+use Illuminate\Support\Str as IlluminateStr;
 use One23\Helpers\Exceptions\Url as Exception;
 
 class ObjectUrl
@@ -40,7 +41,7 @@ class ObjectUrl
 
     public function toArray(): array
     {
-        return $this->components;
+        return $this->components ?? [];
     }
 
     public function toString(): string
@@ -229,7 +230,7 @@ class ObjectUrl
             throw new Exception('Undefined scheme');
         }
 
-        $val = mb_strtolower($val, 'UTF-8');
+        $val = IlluminateStr::lower($val);
 
         if (! is_null($options['onlyHttp'] ?? null)) {
             if (
@@ -287,7 +288,7 @@ class ObjectUrl
             throw new Exception('Undefined host');
         }
 
-        $val = mb_strtolower($val, 'UTF-8');
+        $val = IlluminateStr::lower($val);
 
         $val = idn_to_ascii($val);
         if (! $val) {
@@ -406,7 +407,7 @@ class ObjectUrl
 
     public function getHostCrc(): string
     {
-        return md5($this->getHost());
+        return md5($this->getHostHuman());
     }
 
     // path
@@ -637,6 +638,11 @@ class ObjectUrl
     public function getPort(): ?int
     {
         return $this->components['port'] ?? null;
+    }
+
+    public function hasPort(): bool
+    {
+        return (bool)($this->getPort());
     }
 
     public function isHttp(): bool

@@ -2,6 +2,8 @@
 
 namespace One23\Helpers;
 
+use Illuminate\Support\Str as IlluminateStr;
+
 class Url
 {
     /**
@@ -13,7 +15,7 @@ class Url
      *     acceptAuth: ?bool} $options
      */
     public static function parse(
-        mixed $val,
+        string|array|ObjectUrl $val,
         array $options = [],
     ): array {
         return (new ObjectUrl($val, $options))
@@ -29,7 +31,7 @@ class Url
      *     acceptAuth: ?bool} $options
      */
     public static function build(
-        mixed $val,
+        string|array|ObjectUrl $val,
         array $components2replace = [],
         array $options = [],
     ): string {
@@ -46,7 +48,7 @@ class Url
      *     acceptAuth: ?bool} $options
      */
     public static function url(
-        mixed $val,
+        string|array|ObjectUrl $val,
         array $options = [],
     ): ObjectUrl {
         return new ObjectUrl(
@@ -56,8 +58,12 @@ class Url
     }
 
     protected static function urlUnchecked(
-        mixed $val,
-    ): ObjectUrl {
+        string|array|ObjectUrl $val,
+    ): ?ObjectUrl {
+        if (empty($val)) {
+            return null;
+        }
+
         return new ObjectUrl(
             $val,
             [
@@ -65,57 +71,95 @@ class Url
                 'acceptPort' => null,
                 'acceptAuth' => null,
                 'onlyHttp' => null,
-
             ]
         );
     }
 
     public static function isIp(
-        mixed $val
+        string|array|ObjectUrl $val
     ): bool {
-        return static::urlUnchecked($val)
-            ->isIp();
+        try {
+            return (bool)static::urlUnchecked($val)
+                ?->isIp();
+        } catch (\Throwable) {
+            return false;
+        }
     }
 
     public static function isIpV4(
-        mixed $val
+        string|array|ObjectUrl $val
     ): bool {
-        return static::urlUnchecked($val)
-            ->isIpV4();
+        try {
+            return (bool)static::urlUnchecked($val)
+                ?->isIpV4();
+        } catch (\Throwable) {
+            return false;
+        }
     }
 
     public static function isIpV6(
-        mixed $val
+        string|array|ObjectUrl $val
     ): bool {
-        return static::urlUnchecked($val)
-            ->isIpV6();
+        try {
+            return (bool)static::urlUnchecked($val)
+                ?->isIpV6();
+        } catch (\Throwable) {
+            return false;
+        }
     }
 
     public static function isHttp(
-        mixed $val
+        string|array|ObjectUrl $val
     ): bool {
-        return static::urlUnchecked($val)
-            ->isHttp();
+        if (empty($val)) {
+            return false;
+        }
+
+        if (
+            is_string($val) &&
+            ! preg_match('@^https?://@ui', $val)
+        ) {
+            return false;
+        }
+
+        if (
+            is_array($val) &&
+            is_string($val['scheme'] ?? null) &&
+            ! in_array(
+                IlluminateStr::lower($val['scheme']),
+                ['http', 'https'],
+                true
+            )
+        ) {
+            return false;
+        }
+
+        try {
+            return static::urlUnchecked($val)
+                ?->isHttp();
+        } catch (\Throwable) {
+            return false;
+        }
     }
 
     public static function host(
-        mixed $val
+        string|array|ObjectUrl $val
     ): string {
         return static::urlUnchecked($val)
-            ->getHost();
+            ?->getHost();
     }
 
     public static function hostHuman(
-        mixed $val
+        string|array|ObjectUrl $val
     ): string {
         return static::urlUnchecked($val)
-            ->getHostHuman();
+            ?->getHostHuman();
     }
 
     public static function host2level(
-        mixed $val
+        string|array|ObjectUrl $val
     ): string {
         return static::urlUnchecked($val)
-            ->getHost2level();
+            ?->getHost2level();
     }
 }
