@@ -47,7 +47,7 @@ class Url
      *     acceptIp: ?bool,
      *     acceptAuth: ?bool} $options
      */
-    public static function url(
+    public static function object(
         string|array|ObjectUrl $val,
         array $options = [],
     ): ObjectUrl {

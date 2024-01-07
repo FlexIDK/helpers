@@ -57,7 +57,6 @@ class StrTest extends TestCase
             Str::with(null, 'text', false, $match)
         );
 
-
         $text = <<<'TEXT'
 Lorem ipsum sit amet1amet amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor
 TEXT;

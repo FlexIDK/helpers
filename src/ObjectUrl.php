@@ -2,11 +2,12 @@
 
 namespace One23\Helpers;
 
+use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Arr as IlluminateArr;
 use Illuminate\Support\Str as IlluminateStr;
 use One23\Helpers\Exceptions\Url as Exception;
 
-class ObjectUrl
+class ObjectUrl implements \Stringable, Arrayable
 {
     protected array $components;
 
