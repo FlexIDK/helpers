@@ -8,13 +8,6 @@ composer require one23/helpers
 
 ---
 
-## todo
-
-- Url
-- Str::crc/isCrc
-
----
-
 ## Helpers
 
 ### Integer
