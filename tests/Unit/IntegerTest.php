@@ -236,4 +236,60 @@ class IntegerTest extends TestCase
             Integer::uniq(...['abc', null, 'def', 'ghi'])
         );
     }
+
+    public function test_min()
+    {
+        $this->assertEquals(
+            1,
+            Integer::min(...[1, 2, 3, 3, 2, 1])
+        );
+
+        $this->assertEquals(
+            1,
+            Integer::min(...['abc', 1.12, 2.23, null, 3.33, 'def', 'ghi', 3, 2, 1])
+        );
+
+        $this->assertEquals(
+            null,
+            Integer::min(...['abc', null, 'def', 'ghi'])
+        );
+
+        $this->assertEquals(
+            null,
+            Integer::min()
+        );
+
+        $this->assertEquals(
+            1,
+            Integer::min(...[2, 3, 4, 1])
+        );
+    }
+
+    public function test_max()
+    {
+        $this->assertEquals(
+            3,
+            Integer::max(...[1, 2, 3, 3, 2, 1])
+        );
+
+        $this->assertEquals(
+            3,
+            Integer::max(...['abc', 1.12, 2.23, null, 3.33, 'def', 'ghi', 3, 2, 1])
+        );
+
+        $this->assertEquals(
+            null,
+            Integer::max(...['abc', null, 'def', 'ghi'])
+        );
+
+        $this->assertEquals(
+            null,
+            Integer::max()
+        );
+
+        $this->assertEquals(
+            4,
+            Integer::max(...[2, 3, 4, 1])
+        );
+    }
 }

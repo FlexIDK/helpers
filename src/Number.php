@@ -7,6 +7,7 @@ class Number
     use Traits\First;
     use Traits\Last;
     use Traits\Number\All;
+    use Traits\Number\MinMax;
     use Traits\Number\Uniq;
 
     public static function val(mixed $val): float|int|null
@@ -104,25 +105,5 @@ class Number
         }
 
         return $default;
-    }
-
-    public static function min(mixed ...$args): float|int|null
-    {
-        $arr = static::all(...$args);
-        if (empty($arr)) {
-            return null;
-        }
-
-        return min(...$arr);
-    }
-
-    public static function max(mixed ...$args): float|int|null
-    {
-        $arr = static::all(...$args);
-        if (empty($arr)) {
-            return null;
-        }
-
-        return max(...$arr);
     }
 }

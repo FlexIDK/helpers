@@ -3,7 +3,6 @@
 namespace One23\Helpers\Traits\Number;
 
 /**
- * @method static val
  * @method static all
  */
 trait Uniq
