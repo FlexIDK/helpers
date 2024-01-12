@@ -4,6 +4,11 @@ namespace One23\Helpers;
 
 class Number
 {
+    use Traits\First;
+    use Traits\Last;
+    use Traits\Number\All;
+    use Traits\Number\Uniq;
+
     public static function val(mixed $val): float|int|null
     {
         $val = Value::val($val);
@@ -62,20 +67,6 @@ class Number
             : null;
     }
 
-    public static function first(...$args): float|int|null
-    {
-        foreach ($args as $val) {
-            $val = static::val($val);
-            if (is_null($val)) {
-                continue;
-            }
-
-            return $val;
-        }
-
-        return null;
-    }
-
     public static function money(mixed $val = null, int $number = 2): float|int|null
     {
         $float = static::get($val, null, 0);
@@ -113,24 +104,6 @@ class Number
         }
 
         return $default;
-    }
-
-    /**
-     * @return array<float|int>
-     */
-    public static function all(mixed ...$args): array
-    {
-        $res = [];
-        foreach ($args as $val) {
-            $val = static::val($val);
-            if (is_null($val)) {
-                continue;
-            }
-
-            $res[] = $val;
-        }
-
-        return $res;
     }
 
     public static function min(mixed ...$args): float|int|null

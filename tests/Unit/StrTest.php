@@ -5,6 +5,50 @@ use PHPUnit\Framework\TestCase;
 
 class StrTest extends TestCase
 {
+    public function test_first(): void
+    {
+        $this->assertEquals(
+            'a',
+            Str::first('a', 'b', 'c')
+        );
+
+        $this->assertEquals(
+            'a',
+            Str::first(null, 'a', 'b', 'c', null)
+        );
+
+        $this->assertEquals(
+            'a',
+            Str::first(null, null, 'a', 'b', 'c', null)
+        );
+
+        $this->assertNull(
+            Str::first(null, null, null)
+        );
+    }
+
+    public function test_last(): void
+    {
+        $this->assertEquals(
+            'c',
+            Str::last('a', 'b', 'c')
+        );
+
+        $this->assertEquals(
+            '1',
+            Str::last(null, 'a', 'b', 'c', 1)
+        );
+
+        $this->assertEquals(
+            'c',
+            Str::last(null, null, 'a', 'b', 'c', null)
+        );
+
+        $this->assertNull(
+            Str::last(null, null, null)
+        );
+    }
+
     public function test_md5(): void
     {
         $this->assertMatchesRegularExpression(

@@ -35,6 +35,42 @@ class IntegerTest extends TestCase
         );
     }
 
+    public function test_last(): void
+    {
+        $this->assertEquals(
+            123,
+            Integer::last(123)
+        );
+
+        $this->assertEquals(
+            123,
+            Integer::last('abc', 123)
+        );
+
+        $this->assertEquals(
+            256,
+            Integer::last(123, null, 256, null)
+        );
+
+        $this->assertEquals(
+            123,
+            Integer::last(null, 123, 'abc', null)
+        );
+
+        $this->assertEquals(
+            null,
+            Integer::last('abc', 'cde', null)
+        );
+
+        $this->assertNull(
+            Integer::last(null, 'abc', 'null', null)
+        );
+
+        $this->assertNull(
+            Integer::last()
+        );
+    }
+
     public function test_first(): void
     {
         $this->assertEquals(
@@ -62,8 +98,11 @@ class IntegerTest extends TestCase
             Integer::first('abc', 'cde', null)
         );
 
-        $this->assertEquals(
-            null,
+        $this->assertNull(
+            Integer::first(null, 'abc', 'null', null)
+        );
+
+        $this->assertNull(
             Integer::first()
         );
     }
@@ -177,6 +216,24 @@ class IntegerTest extends TestCase
         $this->assertEquals(
             [1, 2, 3],
             Integer::all(...['abc', 1.12, 2.23, null, 3.33, 'def', 'ghi'])
+        );
+    }
+
+    public function test_uniq(): void
+    {
+        $this->assertEquals(
+            [1, 2, 3],
+            Integer::uniq(...[1, 2, 3, 3, 2, 1])
+        );
+
+        $this->assertEquals(
+            [1, 2, 3],
+            Integer::uniq(...['abc', 1.12, 2.23, null, 3.33, 'def', 'ghi', 3, 2, 1])
+        );
+
+        $this->assertEquals(
+            [],
+            Integer::uniq(...['abc', null, 'def', 'ghi'])
         );
     }
 }

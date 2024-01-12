@@ -4,7 +4,7 @@
   "homepage": "https://github.com/FlexIDK/helpers",
   "description": "One23 Helpers for php && laravel",
   "license": "MIT",
-  "version": "0.1.6",
+  "version": "0.2.0",
   "authors": [
   ],
   "require": {
@@ -19,9 +19,9 @@
     "symfony/var-dumper": "~v6",
     "phpunit/phpunit": "~10",
     "phpstan/phpstan": "~1.10",
-    "laravel/pint": "~v1.13",
+    "laravel/pint": "~v1.13.8",
     "nunomaduro/larastan": "~v2",
-    "fakerphp/faker": "v1.23.0"
+    "fakerphp/faker": "v1.23.1"
   },
   "suggest": {
     "laravel/framework": "~v10"

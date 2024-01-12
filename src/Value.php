@@ -6,6 +6,9 @@ use One23\Helpers\Exceptions\Value as Exception;
 
 class Value
 {
+    use Traits\First;
+    use Traits\Last;
+
     public static function val($value, ...$args)
     {
         if (is_resource($value)) {

@@ -107,6 +107,44 @@ class NumberTest extends TestCase
         );
     }
 
+    public function test_last(): void
+    {
+        $this->assertEquals(
+            123.123,
+            Number::last(300, 400, null, 500, 123.123)
+        );
+
+        $this->assertEquals(
+            123.123,
+            Number::last('abc', 123.123)
+        );
+
+        $this->assertEquals(
+            123.123,
+            Number::last(123.123, null)
+        );
+
+        $this->assertNull(
+            Number::last()
+        );
+
+        $this->assertNull(
+            Number::last(null, 'abc', null)
+        );
+
+        $this->assertEquals(
+            123.123,
+            Number::last(null, 200, '123.123', 'abc')
+        );
+
+        $this->assertEquals(
+            123.123,
+            Number::last(null, 111, function() {
+                return '123.123';
+            }, null)
+        );
+    }
+
     public function test_first(): void
     {
         $this->assertEquals(
@@ -124,9 +162,12 @@ class NumberTest extends TestCase
             Number::first(123.123, null)
         );
 
-        $this->assertEquals(
-            null,
-            Number::first(null)
+        $this->assertNull(
+            Number::first()
+        );
+
+        $this->assertNull(
+            Number::first(null, 'abc', null)
         );
 
         $this->assertEquals(
@@ -208,8 +249,31 @@ class NumberTest extends TestCase
         );
     }
 
-    public function test_many(): void
+    public function test_uniq(): void
     {
+        $this->assertEquals(
+            [1, 2, 3],
+            Number::uniq(...[1, 2, 3, 3, 2, 1])
+        );
+
+        $this->assertEquals(
+            [1.12, 2.23, 3.33, 3, 2, 1],
+            Number::uniq(...['abc', 1.12, 2.23, null, 3.33, 'def', 'ghi', 3, 2, 1])
+        );
+
+        $this->assertEquals(
+            [],
+            Number::uniq(...['abc', null, 'def', 'ghi'])
+        );
+    }
+
+    public function test_all(): void
+    {
+        $this->assertEquals(
+            [1, 2, 3, -2, 1, 2, -1.23],
+            Number::all(...['abc', 1, 2, 3, -2, 1, 2, '-1,23', 'def', 'ghi', 'jkl'])
+        );
+
         $this->assertEquals(
             [1, 2, 3],
             Number::all(...[1, 2, 3])
@@ -228,11 +292,6 @@ class NumberTest extends TestCase
         $this->assertEquals(
             [1, 2, 3],
             Number::all(...['abc', 1, 2, 3, 'def', 'ghi'])
-        );
-
-        $this->assertEquals(
-            [1, 2, 3, -2, -1.23],
-            Number::all(...['abc', 1, 2, 3, -2, '-1,23', 'def', 'ghi', 'jkl'])
         );
 
         $this->assertEquals(

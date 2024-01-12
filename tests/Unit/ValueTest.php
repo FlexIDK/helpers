@@ -6,6 +6,50 @@ use PHPUnit\Framework\TestCase;
 
 class ValueTest extends TestCase
 {
+    public function test_first(): void
+    {
+        $this->assertEquals(
+            'a',
+            Value::first('a', 'b', 'c')
+        );
+
+        $this->assertEquals(
+            'a',
+            Value::first(null, 'a', 'b', 'c', null)
+        );
+
+        $this->assertEquals(
+            'a',
+            Value::first(null, null, 'a', 'b', 'c', null)
+        );
+
+        $this->assertNull(
+            Value::first(null, null, null)
+        );
+    }
+
+    public function test_last(): void
+    {
+        $this->assertEquals(
+            'c',
+            Value::last('a', 'b', 'c')
+        );
+
+        $this->assertEquals(
+            'c',
+            Value::last(null, 'a', 'b', 'c', null)
+        );
+
+        $this->assertEquals(
+            'c',
+            Value::last(null, null, 'a', 'b', 'c', null)
+        );
+
+        $this->assertNull(
+            Value::last(null, null, null)
+        );
+    }
+
     public function test_val(): void
     {
         $this->assertEquals(

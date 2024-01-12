@@ -4,6 +4,11 @@ namespace One23\Helpers;
 
 class Integer
 {
+    use Traits\First;
+    use Traits\Last;
+    use Traits\Number\All;
+    use Traits\Number\Uniq;
+
     public static function val(mixed $val): ?int
     {
         $res = Number::val($val);
@@ -11,16 +16,6 @@ class Integer
         return ! is_null($res)
             ? (int)$res
             : null;
-    }
-
-    public static function all(mixed ...$args): array
-    {
-        $res = Number::all(...$args);
-
-        return array_map(
-            fn($val) => (int)$val,
-            $res
-        );
     }
 
     public static function first(mixed ...$args): ?int

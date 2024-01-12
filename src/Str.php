@@ -7,6 +7,8 @@ use One23\Helpers\Exceptions\Str as Exception;
 
 class Str
 {
+    use Traits\First;
+    use Traits\Last;
     use Traits\Str\Contains;
 
     public static function md5(mixed $val, int $length = 32): string
