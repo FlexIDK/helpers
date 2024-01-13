@@ -303,6 +303,15 @@ class ObjectUrl implements \Stringable, Arrayable
             }
         }
 
+        if (
+            Str::contains(
+                $val,
+                [' ', '..', '?', '%', '@', '#', '/', '\\', '&', '=', '<', '>', '"', "'", '`', '(', ')', '{', '}', '|', '^', '~', ';', '!', '$', '*', '+', ',', ]
+            )
+        ) {
+            throw new Exception('Invalid char in host');
+        }
+
         // ipv4
         if (preg_match('@^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$@', $val)) {
             if (! Str::isIpV4($val)) {
@@ -634,6 +643,11 @@ class ObjectUrl implements \Stringable, Arrayable
         }
 
         return null;
+    }
+
+    public function hasAuth(): bool
+    {
+        return ! is_null($this->getAuth());
     }
 
     public function getPort(): ?int
