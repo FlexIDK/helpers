@@ -7,6 +7,61 @@ use PHPUnit\Framework\TestCase;
 
 class ObjectUrlTest extends TestCase
 {
+    public function test_encode_decode(): void
+    {
+        $components = [
+            'scheme' => 'https',
+            'user' => 'а+б:в.г',
+            'pass' => 'а+б@в.г',
+            'host' => 'яндекс.ru',
+            'port' => 8080,
+            'fragment' => '#a+б:в@г д',
+        ];
+
+        $u = new ObjectUrl(
+            $components,
+            [
+                'acceptAuth' => true,
+                'acceptPort' => true,
+            ]
+        );
+
+        $this->assertEquals(
+            'https://%D0%B0%2B%D0%B1%3A%D0%B2.%D0%B3:%D0%B0%2B%D0%B1%40%D0%B2.%D0%B3@xn--d1acpjx3f.ru:8080/#%23a%2B%D0%B1%3A%D0%B2%40%D0%B3%20%D0%B4',
+            $u->toString()
+        );
+
+        //
+
+        $url = (new ObjectUrl(
+            $u->toString(),
+            [
+                'acceptAuth' => true,
+                'acceptPort' => true,
+            ]
+        ));
+
+        $this->assertEquals(
+            $components['user'],
+            $url->getUser()
+        );
+
+        $this->assertEquals(
+            $components['pass'],
+            $url->getPass()
+        );
+
+        $this->assertEquals(
+            $components['fragment'],
+            $url->getFragment()
+        );
+
+        $this->assertEquals(
+            $components['host'],
+            $url->getHostHuman()
+        );
+    }
+
     public function test_to_array()
     {
         $url = new ObjectUrl(
@@ -59,9 +114,14 @@ class ObjectUrlTest extends TestCase
         );
 
         try {
-            $url = new ObjectUrl('https://www.example.com:123/path?#fragment', [
+            new ObjectUrl('https://www.example.com:123/path?#fragment', [
                 'acceptPort' => false,
             ]);
+
+            new ObjectUrl('https://www.example.com/path?#fragment', [
+                'acceptPort' => true,
+            ]);
+
             $this->assertTrue(false);
         } catch (Exception $e) {
             $this->assertTrue(true);
@@ -91,19 +151,53 @@ class ObjectUrlTest extends TestCase
             $url->setScheme('ftp', ['onlyHttp' => false])->getScheme()
         );
 
+        $this->assertEquals(
+            'one23-scheme',
+            $url->setScheme('one23-scheme', ['onlyHttp' => null])->getScheme()
+        );
+
         try {
+            $url = new ObjectUrl('https://www.example.com/path?#fragment');
+
             $url->setScheme('ftp', ['onlyHttp' => true])->getScheme();
+
+            $url->setScheme('http', ['onlyHttp' => false])->getScheme();
+
+            //
+
+            new ObjectUrl('/www.example.com:123/path?#fragment', [
+                'defaultScheme' => 'http',
+            ]);
+
+            new ObjectUrl('абв://www.example.com:123/path?#fragment', [
+                'onlyHttp' => null,
+            ]);
+
             $this->assertTrue(false);
         } catch (Exception $e) {
             $this->assertTrue(true);
         }
 
-        try {
-            $url->setScheme('http', ['onlyHttp' => false])->getScheme();
-            $this->assertTrue(false);
-        } catch (Exception $e) {
-            $this->assertTrue(true);
-        }
+        $this->assertEquals(
+            'https://www.example.com/path#fragment',
+            (new ObjectUrl(
+                '//www.example.com/path?#fragment',
+                [
+                    'defaultScheme' => 'https',
+                ]
+            ))->toString()
+        );
+
+        $this->assertEquals(
+            'ftp://www.example.com/#fragment',
+            (new ObjectUrl(
+                '//www.example.com?#fragment',
+                [
+                    'defaultScheme' => 'ftp',
+                    'onlyHttp' => null,
+                ]
+            ))->toString()
+        );
     }
 
     public function test_host(): void
@@ -207,9 +301,35 @@ class ObjectUrlTest extends TestCase
                 'acceptIp' => false,
             ]);
             $this->assertTrue(false);
-        } catch (Exception $e) {
+        } catch (\Throwable) {
             $this->assertTrue(true);
         }
+
+        // invalid host
+
+        try {
+            $url->setHost('a..b.ru');
+            $url->setHost('-abc.ru');
+            $url->setHost('abc-.ru');
+            $url->setHost('-.ru');
+            $url->setHost('a@b.ru');
+            $url->setHost('a%b.ru');
+            $url->setHost('a?b.ru');
+            $url->setHost('a,b.ru');
+            $url->setHost('a+b.ru');
+            $url->setHost('*.abc.ru');
+
+            $this->assertTrue(false);
+        } catch (\Throwable) {
+            $this->assertTrue(true);
+        }
+
+        $this->assertEquals(
+            '*.abc.ru',
+            $url->setHost('*.abc.ru', [
+                'allowWildcard' => true,
+            ])->getHost()
+        );
     }
 
     public function test_host_human(): void
@@ -569,11 +689,11 @@ class ObjectUrlTest extends TestCase
         );
 
         $this->assertFalse(
-            $url->isSchemes(['ftp', 'ssh'])
+            $url->isScheme(['ftp', 'ssh'])
         );
 
         $this->assertTrue(
-            $url->isSchemes(['http', 'ssh', 'https'])
+            $url->isScheme(['http', 'ssh', 'https'])
         );
 
         $url = new ObjectUrl('ftp://www.example.com/path?#fragment', ['onlyHttp' => null]);
@@ -582,11 +702,11 @@ class ObjectUrlTest extends TestCase
         );
 
         $this->assertTrue(
-            $url->isSchemes(['ftp', 'ssh'])
+            $url->isScheme(['ftp', 'ssh'])
         );
 
         $this->assertFalse(
-            $url->isSchemes(['http', 'ssh'])
+            $url->isScheme(['http', 'ssh'])
         );
     }
 

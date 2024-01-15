@@ -4,39 +4,50 @@ namespace One23\Helpers;
 
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Arr as IlluminateArr;
-use Illuminate\Support\Str as IlluminateStr;
 use One23\Helpers\Exceptions\Url as Exception;
 
 class ObjectUrl implements \Stringable, Arrayable
 {
+    use Traits\ObjectUrl\Auth;
+    use Traits\ObjectUrl\Fragment;
+    use Traits\ObjectUrl\Host;
+    use Traits\ObjectUrl\Path;
+    use Traits\ObjectUrl\Port;
+    use Traits\ObjectUrl\Scheme;
+
     protected array $components;
+
+    protected array $options;
 
     /**
      * @param array{
+     *     defaultScheme: ?string,
+     *     allowWildcard: ?bool,
      *     onlyHttp: ?bool,
      *     minHostLevel: ?int,
      *     acceptPort: ?bool,
      *     acceptIp: ?bool,
-     *     acceptAuth: ?bool} $options
+     *     acceptAuth: ?bool
+     * } $options
      */
     public function __construct(
         string|array|self $val,
         array $options = [],
     ) {
+        $this->options = $this->getOptions($options);
+
+        //
+
         if (is_string($val)) {
-            $this->parse(
-                $val,
-                $options,
-            );
+            $this->parse($val);
         } elseif (is_array($val)) {
             $this->parse(
-                $this->build($val),
-                $options,
+                $this->build($val)
             );
-        } elseif ($val instanceof self) {
+        } elseif ($val instanceof ObjectUrl) {
             $this->components = $val->toArray();
         } else {
-            throw new Exception('Invalid `value`');
+            throw new Exception('Invalid `value`', Exception::INVALID_VALUE);
         }
     }
 
@@ -55,87 +66,100 @@ class ObjectUrl implements \Stringable, Arrayable
         return $this->toString();
     }
 
-    protected function optionsWithDefault(array $options = []): array
+    protected function getOptions(array $options = []): array
     {
-        return $options + [
-            'onlyHttp' => $options['onlyHttp'] ?? true,
-            'minHostLevel' => $options['minHostLevel'] ?? 2,
-            'acceptPort' => $options['acceptPort'] ?? false,
-            'acceptIp' => $options['acceptIp'] ?? false,
-            'acceptAuth' => $options['acceptAuth'] ?? false,
+        $allowedOptions = [
+            'defaultScheme' => [
+                'nullable' => true,
+                'type' => 'string',
+                'default' => null,
+            ],
+            'allowWildcard' => [
+                'nullable' => true,
+                'type' => 'bool',
+                'default' => false,
+            ],
+            'onlyHttp' => [
+                'nullable' => true,
+                'type' => 'bool',
+                'default' => true,
+            ],
+            'minHostLevel' => [
+                'nullable' => true,
+                'type' => 'int',
+                'min' => 1,
+                'default' => 2,
+            ],
+            'acceptPort' => [
+                'nullable' => true,
+                'type' => 'bool',
+                'default' => false,
+            ],
+            'acceptIp' => [
+                'nullable' => true,
+                'type' => 'bool',
+                'default' => false,
+            ],
+            'acceptAuth' => [
+                'nullable' => true,
+                'type' => 'bool',
+                'default' => false,
+            ],
+            'hostHuman' => [
+                'nullable' => true,
+                'type' => 'bool',
+                'default' => false,
+            ],
         ];
+
+        return
+            [
+                ...($this->options ?? []),
+                ...Options::all($options, $allowedOptions),
+            ] +
+            Options::default($allowedOptions);
     }
 
     //
 
-    /**
-     * @param array{
-     *     onlyHttp: ?bool,
-     *     minHostLevel: ?int,
-     *     acceptPort: ?bool,
-     *     acceptIp: ?bool,
-     *     acceptAuth: ?bool} $options
-     */
     protected function parse(
-        string $url,
-        array $options = [],
+        string $url
     ): static {
-        $options = $this->optionsWithDefault($options);
+        $options = $this->getOptions();
 
         //
 
         $components = parse_url($url);
-        if (! $components) {
-            throw new Exception('Invalid URL');
-        }
-
-        if (
-            ! isset($components['scheme']) ||
-            ! isset($components['host'])
-        ) {
-            throw new Exception('Undefined scheme or host');
-        }
-
-        if (is_bool($options['acceptPort'] ?? null)) {
-            if (
-                $options['acceptPort']
-                && ! isset($components['port'])
-            ) {
-                throw new Exception('Undefined port');
-            }
-
-            if (
-                ! $options['acceptPort']
-                && isset($components['port'])
-            ) {
-                throw new Exception('Port is not allowed');
-            }
-        }
-
-        if (is_bool($options['acceptAuth'] ?? null)) {
-            if (
-                $options['acceptAuth']
-                && ! isset($components['user'])
-            ) {
-                throw new Exception('Undefined user');
-            }
-
-            if (
-                ! $options['acceptAuth']
-                && isset($components['user'])
-            ) {
-                throw new Exception('User is not allowed');
-            }
+        if (empty($components)) {
+            throw new Exception('Invalid URL', Exception::INVALID_URL);
         }
 
         $components['scheme'] = $this->value2scheme(
-            $components['scheme'],
+            ($components['scheme'] ?? null),
             $options,
         );
 
+        $components = [
+            ...$components,
+            ...($this->value2auth(
+                ($components['user'] ?? null),
+                ($components['pass'] ?? null),
+                $options,
+            ) ?: []),
+        ];
+
         $components['host'] = $this->value2host(
-            $components['host'],
+            ($components['host'] ?? null),
             $options,
+        );
+
+        $components['port'] = $this->value2port(
+            ($components['port'] ?? null),
+            $options,
+        );
+
+        $components['path'] = $this->value2path(
+            $components['path'] ?? null
         );
 
         if (isset($components['query'])) {
@@ -145,11 +169,12 @@ class ObjectUrl implements \Stringable, Arrayable
             )->getQuery();
         }
 
-        $components['path'] = $this->value2path(
-            $components['path'] ?? null
+        $components['fragment'] = $this->value2fragment(
+            $components['fragment'] ?? null
         );
 
         //
+
         $this->components = $components;
 
         return $this;
@@ -167,280 +192,70 @@ class ObjectUrl implements \Stringable, Arrayable
             ...($components2replace ?: []),
         ];
 
-        if (
-            ! isset($components['scheme']) ||
-            ! isset($components['host'])
-        ) {
-            throw new Exception('Undefined scheme or host');
-        }
+        $components['scheme'] = $this->value2scheme(
+            ($components['scheme'] ?? null),
+            $options
+        );
 
-        if (isset($components['query'])) {
-            $this->components['query'] = Arr::undot(
+        $components = [
+            ...$components,
+            ...($this->value2auth(
+                ($components['user'] ?? null),
+                ($components['pass'] ?? null),
+                $options
+            ) ?: []),
+        ];
+
+        $components['host'] = $this->value2host(
+            ($components['host'] ?? null),
+            $options
+        );
+
+        $components['port'] = $this->value2port(
+            $components['port'] ?? null,
+            $options
+        );
+
+        $components['path'] = $this->value2path(
+            $components['path'] ?? null
+        );
+
+        if (! empty($components['query'] ?? [])) {
+            if (is_string($components['query'])) {
+                $components['query'] = $this->query2dotArray($components['query']);
+            }
+
+            if (! is_array($components['query'])) {
+                throw new Exception('Invalid `query` type', Exception::INVALID_URL_QUERY);
+            }
+
+            $components['query'] = Arr::undot(
                 $this->query2dotArray($components['query'])
             );
         }
 
+        $components['fragment'] = $this->value2fragment(
+            $components['fragment'] ?? null
+        );
+
         //
 
-        $port = Number::int($components['port'] ?? null, null, 1, 65535);
-
         return
-            $this->value2scheme($components['scheme']) .
-            '://' .
+            $this->scheme2build($components) .
 
-            (($components['user'] ?? null)
-                ? $components['user'] .
-                    (($components['pass'] ?? null)
-                        ? ':' . $components['pass']
-                        : '') . '@'
-                : '') .
+            $this->auth2build($components) .
 
-            $this->value2host(
-                $components['host'],
-                [
-                    'minHostLevel' => (int)($options['minHostLevel'] ?? null),
-                    'human' => (bool)($options['hostHuman'] ?? false),
-                ]
-            ) .
+            $this->host2build($components) .
 
-            (($port)
-                ? ":{$port}"
-                : '') .
+            $this->port2build($components) .
 
-            $this->value2path($components['path'] ?? null) .
+            $this->path2build($components) .
 
             (! empty($components['query'] ?? [])
                 ? '?' . $this->queryArray2queryString($components['query'])
                 : '') .
 
-            (($components['fragment'] ?? null)
-                ? '#' . $components['fragment']
-                : '');
-    }
-
-    // scheme
-
-    /**
-     * @param  array{onlyHttp: ?bool}  $options
-     */
-    protected function value2scheme(
-        string $val,
-        ?array $options = null,
-    ): string {
-        if (! $val) {
-            throw new Exception('Undefined scheme');
-        }
-
-        $val = IlluminateStr::lower($val);
-
-        if (! is_null($options['onlyHttp'] ?? null)) {
-            if (
-                (
-                    $options['onlyHttp']
-                    && ! in_array($val, ['http', 'https'])
-                )
-                || (
-                    ! $options['onlyHttp']
-                    && in_array($val, ['http', 'https'])
-                )
-            ) {
-                throw new Exception('Invalid scheme');
-            }
-        }
-
-        return $val;
-    }
-
-    /**
-     * @param  array{onlyHttp: ?bool}  $options
-     */
-    public function setScheme(
-        string $val,
-        array $options = []
-    ): static {
-        $options = $this->optionsWithDefault($options);
-
-        //
-
-        $this->components['scheme'] = $this->value2scheme(
-            $val,
-            $options,
-        );
-
-        return $this;
-    }
-
-    public function getScheme(): string
-    {
-        return $this->components['scheme'];
-    }
-
-    // host
-
-    /**
-     * @param array{minHostLevel: int,
-     *     acceptIp: ?bool} $options
-     */
-    protected function value2host(
-        string $val,
-        array $options = [],
-    ): string {
-        if (! $val) {
-            throw new Exception('Undefined host');
-        }
-
-        $val = IlluminateStr::lower($val);
-
-        $val = idn_to_ascii($val);
-        if (! $val) {
-            throw new Exception('Invalid IDN host');
-        }
-
-        if ($options['human'] ?? false) {
-            try {
-                $val = idn_to_utf8($val, 0, INTL_IDNA_VARIANT_UTS46);
-            } catch (\Throwable) {
-            }
-        }
-
-        if (
-            Str::contains(
-                $val,
-                [' ', '..', '?', '%', '@', '#', '/', '\\', '&', '=', '<', '>', '"', "'", '`', '(', ')', '{', '}', '|', '^', '~', ';', '!', '$', '+', ',', ]
-            )
-        ) {
-            throw new Exception('Invalid char in host');
-        }
-
-        // ipv4
-        if (preg_match('@^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$@', $val)) {
-            if (! Str::isIpV4($val)) {
-                throw new Exception('Invalid IPv4 host');
-            }
-
-            if (($options['acceptIp'] ?? null) === false) {
-                throw new Exception('IP is not allowed');
-            }
-        }
-        // ipv6
-        elseif (preg_match('@^\[([a-f0-9:]+)\]$@i', $val, $match)) {
-            if (! Str::isIpV6($match[1])) {
-                throw new Exception('Invalid IPv6 host');
-            }
-
-            if (($options['acceptIp'] ?? null) === false) {
-                throw new Exception('IP is not allowed');
-            }
-        }
-        // hostname
-        elseif (((int)$options['minHostLevel'] ?? 0) > 0) {
-            $host = preg_replace('/^www\./u', '', $val);
-            $e = array_filter(explode('.', $host));
-
-            if (count($e) < (int)$options['minHostLevel']) {
-                throw new Exception('Host level is too low');
-            }
-        }
-
-        return $val;
-    }
-
-    /**
-     * @param  array{minHostLevel: int, acceptIp: ?bool}  $options
-     */
-    public function setHost(
-        string $host,
-        array $options = [],
-    ): static {
-        $options = $this->optionsWithDefault($options);
-
-        $this->components['host'] = $this->value2host(
-            $host,
-            $options,
-        );
-
-        return $this;
-    }
-
-    public function getHost(): string
-    {
-        return $this->components['host'];
-    }
-
-    public function getHostHuman(): string
-    {
-        $host = $this->getHost();
-
-        try {
-            $host = idn_to_utf8($host, 0, INTL_IDNA_VARIANT_UTS46);
-        } catch (\Throwable) {
-        }
-
-        return preg_replace('/^www\./ui', '', $host);
-    }
-
-    public function getHost1Level(): string
-    {
-        if ($this->isIp()) {
-            return $this->getHost();
-        }
-
-        $host = $this->getHost();
-
-        return implode(
-            '.',
-            array_slice(
-                explode('.', $host),
-                -1,
-                1
-            )
-        );
-    }
-
-    public function getHost2level(): string
-    {
-        if ($this->isIp()) {
-            return $this->getHost();
-        }
-
-        $host = $this->getHost();
-
-        return implode(
-            '.',
-            array_slice(
-                explode('.', $host),
-                -2,
-                2
-            )
-        );
-    }
-
-    public function getHostCrc(): string
-    {
-        return md5($this->getHostHuman());
-    }
-
-    // path
-
-    protected function value2path(?string $val = null): string
-    {
-        // remover trailing slash
-        return preg_replace(
-            '/\/+/', '/',
-            $val ?: '/'
-        );
-    }
-
-    public function setPath(?string $path = null): static
-    {
-        $this->components['path'] = $this->value2path($path);
-
-        return $this;
-    }
-
-    public function getPath(): string
-    {
-        return $this->components['path'] ?? '/';
+            $this->fragment2build($components);
     }
 
     // query
@@ -629,61 +444,5 @@ class ObjectUrl implements \Stringable, Arrayable
                 'hostHuman' => true,
             ]
         );
-    }
-
-    // auth
-
-    public function getAuth(): ?array
-    {
-        $user = $this->components['user'] ?? null;
-        $pass = $this->components['pass'] ?? null;
-
-        if ($user) {
-            return [$user, $pass];
-        }
-
-        return null;
-    }
-
-    public function hasAuth(): bool
-    {
-        return ! is_null($this->getAuth());
-    }
-
-    public function getPort(): ?int
-    {
-        return $this->components['port'] ?? null;
-    }
-
-    public function hasPort(): bool
-    {
-        return (bool)($this->getPort());
-    }
-
-    public function isHttp(): bool
-    {
-        return in_array($this->getScheme(), ['http', 'https']);
-    }
-
-    public function isSchemes(array|string $schemes): bool
-    {
-        $schemes = IlluminateArr::wrap($schemes);
-
-        return in_array($this->getScheme(), $schemes);
-    }
-
-    public function isIp(): bool
-    {
-        return Str::isIp($this->getHost());
-    }
-
-    public function isIpV6(): bool
-    {
-        return Str::isIpV6($this->getHost());
-    }
-
-    public function isIpV4(): bool
-    {
-        return Str::isIpV4($this->getHost());
     }
 }

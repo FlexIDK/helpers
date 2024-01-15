@@ -10,6 +10,34 @@ composer require one23/helpers
 
 ## Helpers
 
+### Random  
+
+```shell
+use One23\Helpers\Random;
+
+Random::alpha(10); // abcdefghij (a-z)
+Random::alpha(10, null); // aBcDeFgHiJ (a-zA-Z)
+Random::alpha(10, true); // ABCDEFGHIJ (A-Z)
+
+Random::base58(6); // 1a2b3c (without 0, O, I, l)
+
+Random::base64(6); // 1a2b3c (a-zA-Z0-9)) 
+
+Random::byte(6); // 1a2b3c (random bytes)
+
+Random::hex(6); // 1a2b3c (a-f0-9)
+
+Random::digit(6); // 123456 (0-9)
+
+Random::alphaDigital(6); // 1a2b3c (a-z0-9)
+Random::alphaDigital(6, null); // 1a2b3c (a-zA-Z0-9)
+Random::alphaDigital(6, true); // 1a2b3c (A-Z0-9)
+
+Random::digitalAlpha(6); // alias of alphaDigital
+
+(new Random('charters'))->generate(8); // sretrahc ([charters]+)
+```
+
 ### Integer
 
 ```shell

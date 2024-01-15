@@ -4,11 +4,14 @@
   "homepage": "https://github.com/FlexIDK/helpers",
   "description": "One23 Helpers for php && laravel",
   "license": "MIT",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "authors": [
   ],
   "require": {
     "php" : "~8.2",
+    "ext-json": "*",
+    "ext-mbstring": "*",
+    "ext-intl": "*",
     "illuminate/contracts": "~v10",
     "illuminate/support": "~v10",
     "illuminate/database": "~v10",

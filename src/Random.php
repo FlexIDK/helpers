@@ -109,4 +109,14 @@ class Random
             $upper
         );
     }
+
+    public static function hex(int $length): string
+    {
+        $self = new static(
+            static::DIGITAL .
+            'abcdef'
+        );
+
+        return $self->generation($length);
+    }
 }
