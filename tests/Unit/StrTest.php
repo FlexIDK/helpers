@@ -1,9 +1,9 @@
 <?php
 
+use One23\Helpers\Exceptions\Str as Exception;
 use One23\Helpers\Str;
-use PHPUnit\Framework\TestCase;
 
-class StrTest extends TestCase
+class StrTest extends \Tests\TestCase
 {
     public function test_first(): void
     {
@@ -61,15 +61,17 @@ class StrTest extends TestCase
             Str::md5('abc', 8)
         );
 
-        try {
+        $this->assertException(function() {
             Str::md5(null);
-            Str::md5('abc', 0);
-            Str::md5('abc', 33);
+        }, Exception::class);
 
-            $this->assertTrue(false);
-        } catch (Exception $e) {
-            $this->assertTrue(true);
-        }
+        $this->assertException(function() {
+            Str::md5('abc', 0);
+        }, Exception::class);
+
+        $this->assertException(function() {
+            Str::md5('abc', 33);
+        }, Exception::class);
     }
 
     public function test_is_crc(): void

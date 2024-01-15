@@ -75,7 +75,7 @@ class ObjectUrl implements \Stringable, Arrayable
                 'default' => null,
             ],
             'allowWildcard' => [
-                'nullable' => true,
+                'nullable' => false,
                 'type' => 'bool',
                 'default' => false,
             ],

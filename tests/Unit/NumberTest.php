@@ -1,9 +1,8 @@
 <?php
 
 use One23\Helpers\Number;
-use PHPUnit\Framework\TestCase;
 
-class NumberTest extends TestCase
+class NumberTest extends \Tests\TestCase
 {
     public function test_val(): void
     {

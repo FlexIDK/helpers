@@ -2,50 +2,88 @@
 
 namespace One23\Helpers;
 
-use Illuminate\Support\Str as IlluminateStr;
-
 class Url
 {
-    /**
-     * @param array{
-     *     onlyHttp: ?bool,
-     *     minHostLevel: ?int,
-     *     acceptPort: ?bool,
-     *     acceptIp: ?bool,
-     *     acceptAuth: ?bool} $options
-     */
-    public static function parse(
-        string|array|ObjectUrl $val,
-        array $options = [],
+    protected static $defaultOptions = [
+        'allowWildcard' => false,
+        'onlyHttp' => null,
+        'acceptAuth' => null,
+        'minHostLevel' => 2,
+        'acceptIp' => null,
+        'acceptPort' => null,
+    ];
+
+    protected static function options(
+        array $options = []
     ): array {
-        return (new ObjectUrl($val, $options))
-            ->toArray();
+        return Options::merge(
+            static::$defaultOptions,
+            $options
+        );
     }
 
     /**
      * @param array{
-     *     onlyHttp: ?bool,
-     *     minHostLevel: ?int,
-     *     acceptPort: ?bool,
-     *     acceptIp: ?bool,
-     *     acceptAuth: ?bool} $options
+     *      defaultScheme: ?string,
+     *      allowWildcard: ?bool,
+     *      onlyHttp: ?bool,
+     *      minHostLevel: ?int,
+     *      acceptPort: ?bool,
+     *      acceptIp: ?bool,
+     *      acceptAuth: ?bool
+     * } $options
+     */
+    public static function parse(
+        string|array|ObjectUrl $val,
+        array $options = [],
+    ): ?array {
+        try {
+            return (new ObjectUrl(
+                $val,
+                static::options($options)
+            ))
+                ->toArray();
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
+    /**
+     * @param array{
+     *      defaultScheme: ?string,
+     *      allowWildcard: ?bool,
+     *      onlyHttp: ?bool,
+     *      minHostLevel: ?int,
+     *      acceptPort: ?bool,
+     *      acceptIp: ?bool,
+     *      acceptAuth: ?bool
+     * } $options
      */
     public static function build(
         string|array|ObjectUrl $val,
         array $components2replace = [],
         array $options = [],
-    ): string {
-        return (new ObjectUrl($val, $options))
-            ->build($components2replace, $options);
+    ): ?string {
+        try {
+            $options = static::options($options);
+
+            return (new ObjectUrl($val, $options))
+                ->build($components2replace, $options);
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
     /**
      * @param array{
-     *     onlyHttp: ?bool,
-     *     minHostLevel: ?int,
-     *     acceptPort: ?bool,
-     *     acceptIp: ?bool,
-     *     acceptAuth: ?bool} $options
+     *      defaultScheme: ?string,
+     *      allowWildcard: ?bool,
+     *      onlyHttp: ?bool,
+     *      minHostLevel: ?int,
+     *      acceptPort: ?bool,
+     *      acceptIp: ?bool,
+     *      acceptAuth: ?bool
+     * } $options
      */
     public static function object(
         string|array|ObjectUrl $val,
@@ -57,8 +95,9 @@ class Url
         );
     }
 
-    protected static function urlUnchecked(
+    protected static function defaultObject(
         string|array|ObjectUrl $val,
+        array $options = [],
     ): ?ObjectUrl {
         if (empty($val)) {
             return null;
@@ -66,20 +105,16 @@ class Url
 
         return new ObjectUrl(
             $val,
-            [
-                'acceptIp' => null,
-                'acceptPort' => null,
-                'acceptAuth' => null,
-                'onlyHttp' => null,
-            ]
+            static::options($options)
         );
     }
 
     public static function isIp(
-        string|array|ObjectUrl $val
+        string|array|ObjectUrl $val,
+        array $options = [],
     ): bool {
         try {
-            return (bool)static::urlUnchecked($val)
+            return (bool)static::defaultObject($val, $options)
                 ?->isIp();
         } catch (\Throwable) {
             return false;
@@ -87,10 +122,11 @@ class Url
     }
 
     public static function isIpV4(
-        string|array|ObjectUrl $val
+        string|array|ObjectUrl $val,
+        array $options = [],
     ): bool {
         try {
-            return (bool)static::urlUnchecked($val)
+            return (bool)static::defaultObject($val, $options)
                 ?->isIpV4();
         } catch (\Throwable) {
             return false;
@@ -98,10 +134,11 @@ class Url
     }
 
     public static function isIpV6(
-        string|array|ObjectUrl $val
+        string|array|ObjectUrl $val,
+        array $options = [],
     ): bool {
         try {
-            return (bool)static::urlUnchecked($val)
+            return (bool)static::defaultObject($val, $options)
                 ?->isIpV6();
         } catch (\Throwable) {
             return false;
@@ -109,33 +146,15 @@ class Url
     }
 
     public static function isHttp(
-        string|array|ObjectUrl $val
+        string|array|ObjectUrl $val,
+        array $options = [],
     ): bool {
         if (empty($val)) {
             return false;
         }
 
-        if (
-            is_string($val) &&
-            ! preg_match('@^https?://@ui', $val)
-        ) {
-            return false;
-        }
-
-        if (
-            is_array($val) &&
-            is_string($val['scheme'] ?? null) &&
-            ! in_array(
-                IlluminateStr::lower($val['scheme']),
-                ['http', 'https'],
-                true
-            )
-        ) {
-            return false;
-        }
-
         try {
-            return static::urlUnchecked($val)
+            return static::defaultObject($val, $options)
                 ?->isHttp();
         } catch (\Throwable) {
             return false;
@@ -143,23 +162,26 @@ class Url
     }
 
     public static function host(
-        string|array|ObjectUrl $val
-    ): string {
-        return static::urlUnchecked($val)
+        string|array|ObjectUrl $val,
+        array $options = [],
+    ): ?string {
+        return static::defaultObject($val, $options)
             ?->getHost();
     }
 
     public static function hostHuman(
-        string|array|ObjectUrl $val
-    ): string {
-        return static::urlUnchecked($val)
+        string|array|ObjectUrl $val,
+        array $options = [],
+    ): ?string {
+        return static::defaultObject($val, $options)
             ?->getHostHuman();
     }
 
     public static function host2level(
-        string|array|ObjectUrl $val
-    ): string {
-        return static::urlUnchecked($val)
+        string|array|ObjectUrl $val,
+        array $options = [],
+    ): ?string {
+        return static::defaultObject($val, $options)
             ?->getHost2level();
     }
 }

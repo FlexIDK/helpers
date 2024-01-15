@@ -1,9 +1,8 @@
 <?php
 
 use One23\Helpers\Integer;
-use PHPUnit\Framework\TestCase;
 
-class IntegerTest extends TestCase
+class IntegerTest extends \Tests\TestCase
 {
     public function test_val(): void
     {

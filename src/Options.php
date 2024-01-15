@@ -9,6 +9,27 @@ use One23\Helpers\Exceptions\Options as Exception;
  */
 class Options
 {
+    public static function merge(...$configs): array
+    {
+        $res = [];
+
+        foreach ($configs as $config) {
+            if (! is_array($config)) {
+                continue;
+            }
+
+            foreach ($config as $key => $value) {
+                if (is_numeric($key)) {
+                    continue;
+                }
+
+                $res[$key] = $value;
+            }
+        }
+
+        return $res;
+    }
+
     public static function default(
         array $config
     ): array {

@@ -1,9 +1,8 @@
 <?php
 
 use One23\Helpers\Random;
-use PHPUnit\Framework\TestCase;
 
-class RandomTest extends TestCase
+class RandomTest extends \Tests\TestCase
 {
     public function test__constructor()
     {

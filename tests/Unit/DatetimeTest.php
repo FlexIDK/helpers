@@ -1,9 +1,8 @@
 <?php
 
 use One23\Helpers\Datetime;
-use PHPUnit\Framework\TestCase;
 
-class DatetimeTest extends TestCase
+class DatetimeTest extends \Tests\TestCase
 {
     public function test_val()
     {

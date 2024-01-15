@@ -1,9 +1,8 @@
 <?php
 
 use One23\Helpers\ResponseApi;
-use PHPUnit\Framework\TestCase;
 
-class ResponseApiTest extends TestCase
+class ResponseApiTest extends \Tests\TestCase
 {
     public function test_is_debug(): void
     {

@@ -2,9 +2,8 @@
 
 use One23\Helpers\Caster;
 use One23\Helpers\Enums;
-use PHPUnit\Framework\TestCase;
 
-class CasterTest extends TestCase
+class CasterTest extends \Tests\TestCase
 {
     protected function faker(): Faker\Generator
     {

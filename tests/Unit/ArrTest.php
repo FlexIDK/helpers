@@ -1,9 +1,8 @@
 <?php
 
 use One23\Helpers\Arr;
-use PHPUnit\Framework\TestCase;
 
-class ArrTest extends TestCase
+class ArrTest extends \Tests\TestCase
 {
     public function test_substr(): void
     {

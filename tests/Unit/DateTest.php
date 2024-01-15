@@ -2,9 +2,8 @@
 
 use Carbon\CarbonInterface;
 use One23\Helpers\Date;
-use PHPUnit\Framework\TestCase;
 
-class DateTest extends TestCase
+class DateTest extends \Tests\TestCase
 {
     public function test_to_date_string(): void
     {

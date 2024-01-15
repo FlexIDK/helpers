@@ -1,9 +1,8 @@
 <?php
 
 use One23\Helpers\DateBetween;
-use PHPUnit\Framework\TestCase;
 
-class DateBetweenTest extends TestCase
+class DateBetweenTest extends \Tests\TestCase
 {
     public function test_before(): void
     {

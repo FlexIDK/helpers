@@ -3,9 +3,8 @@
 use One23\Helpers\Arr;
 use One23\Helpers\Exceptions\Url as Exception;
 use One23\Helpers\ObjectUrl;
-use PHPUnit\Framework\TestCase;
 
-class ObjectUrlTest extends TestCase
+class ObjectUrlTest extends \Tests\TestCase
 {
     public function test_encode_decode(): void
     {
@@ -113,19 +112,17 @@ class ObjectUrlTest extends TestCase
             $url->getPort()
         );
 
-        try {
+        $this->assertException(function() {
             new ObjectUrl('https://www.example.com:123/path?#fragment', [
                 'acceptPort' => false,
             ]);
+        }, Exception::class);
 
+        $this->assertException(function() {
             new ObjectUrl('https://www.example.com/path?#fragment', [
                 'acceptPort' => true,
             ]);
-
-            $this->assertTrue(false);
-        } catch (Exception $e) {
-            $this->assertTrue(true);
-        }
+        }, Exception::class);
     }
 
     public function test_scheme(): void
@@ -156,27 +153,27 @@ class ObjectUrlTest extends TestCase
             $url->setScheme('one23-scheme', ['onlyHttp' => null])->getScheme()
         );
 
-        try {
-            $url = new ObjectUrl('https://www.example.com/path?#fragment');
+        $url = new ObjectUrl('https://www.example.com/path?#fragment');
 
+        $this->assertException(function() use ($url) {
             $url->setScheme('ftp', ['onlyHttp' => true])->getScheme();
+        }, Exception::class);
 
+        $this->assertException(function() use ($url) {
             $url->setScheme('http', ['onlyHttp' => false])->getScheme();
+        }, Exception::class);
 
-            //
-
+        $this->assertException(function() {
             new ObjectUrl('/www.example.com:123/path?#fragment', [
                 'defaultScheme' => 'http',
             ]);
+        }, Exception::class);
 
+        $this->assertException(function() {
             new ObjectUrl('абв://www.example.com:123/path?#fragment', [
                 'onlyHttp' => null,
             ]);
-
-            $this->assertTrue(false);
-        } catch (Exception $e) {
-            $this->assertTrue(true);
-        }
+        }, Exception::class);
 
         $this->assertEquals(
             'https://www.example.com/path#fragment',
@@ -237,23 +234,18 @@ class ObjectUrlTest extends TestCase
         );
 
         //
-        try {
+
+        $this->assertException(function() use ($url) {
             $url->setHost('www.ru', [
                 'minHostLevel' => 2,
-            ])->getHost();
-            $this->assertTrue(false);
-        } catch (Exception $e) {
-            $this->assertTrue(true);
-        }
+            ]);
+        }, Exception::class);
 
-        try {
+        $this->assertException(function() use ($url) {
             $url->setHost('www.facebook.ru', [
                 'minHostLevel' => 3,
-            ])->getHost();
-            $this->assertTrue(false);
-        } catch (Exception $e) {
-            $this->assertTrue(true);
-        }
+            ]);
+        }, Exception::class);
 
         // ipv4
 
@@ -271,14 +263,11 @@ class ObjectUrlTest extends TestCase
             ])->getHost()
         );
 
-        try {
+        $this->assertException(function() use ($url) {
             $url->setHost('127.0.0.1', [
                 'acceptIp' => false,
             ]);
-            $this->assertTrue(false);
-        } catch (Exception $e) {
-            $this->assertTrue(true);
-        }
+        }, Exception::class);
 
         // ipv6
 
@@ -296,33 +285,53 @@ class ObjectUrlTest extends TestCase
             ])->getHost()
         );
 
-        try {
+        $this->assertException(function() use ($url) {
             $url->setHost('[2001:0db8:85a3:0000:0000:8a2e:0370:7334]', [
                 'acceptIp' => false,
             ]);
-            $this->assertTrue(false);
-        } catch (\Throwable) {
-            $this->assertTrue(true);
-        }
+        }, Exception::class);
 
         // invalid host
 
-        try {
+        $this->assertException(function() use ($url) {
             $url->setHost('a..b.ru');
-            $url->setHost('-abc.ru');
-            $url->setHost('abc-.ru');
-            $url->setHost('-.ru');
-            $url->setHost('a@b.ru');
-            $url->setHost('a%b.ru');
-            $url->setHost('a?b.ru');
-            $url->setHost('a,b.ru');
-            $url->setHost('a+b.ru');
-            $url->setHost('*.abc.ru');
+        }, Exception::class);
 
-            $this->assertTrue(false);
-        } catch (\Throwable) {
-            $this->assertTrue(true);
-        }
+        $this->assertException(function() use ($url) {
+            $url->setHost('-abc.ru');
+        }, Exception::class);
+
+        $this->assertException(function() use ($url) {
+            $url->setHost('abc-.ru');
+        }, Exception::class);
+
+        $this->assertException(function() use ($url) {
+            $url->setHost('-.ru');
+        }, Exception::class);
+
+        $this->assertException(function() use ($url) {
+            $url->setHost('a@b.ru');
+        }, Exception::class);
+
+        $this->assertException(function() use ($url) {
+            $url->setHost('a%b.ru');
+        });
+
+        $this->assertException(function() use ($url) {
+            $url->setHost('a?b.ru');
+        }, Exception::class);
+
+        $this->assertException(function() use ($url) {
+            $url->setHost('a,b.ru');
+        }, Exception::class);
+
+        $this->assertException(function() use ($url) {
+            $url->setHost('a+b.ru');
+        }, Exception::class);
+
+        $this->assertException(function() use ($url) {
+            $url->setHost('*.abc.ru');
+        }, Exception::class);
 
         $this->assertEquals(
             '*.abc.ru',
@@ -644,41 +653,48 @@ class ObjectUrlTest extends TestCase
             $url->getAuth()
         );
 
-        try {
-            $url = new ObjectUrl(
+        $this->assertException(function() {
+            new ObjectUrl(
                 'https://user@www.example.com/path?#fragment',
                 [
                     'acceptAuth' => false,
                 ],
             );
-            $this->assertTrue(false);
-        } catch (Exception $e) {
-            $this->assertTrue(true);
-        }
+        }, Exception::class);
     }
 
     public function test_fragment(): void
     {
-        try {
-            new ObjectUrl('http://aliexpress.ru/fsd');
-            new ObjectUrl('https://www.ozon.ru/context/detail/id/144037117/?gclsrc=aw.ds');
-            $this->assertTrue(true);
-        } catch (Exception $e) {
-            $this->assertTrue(false);
-        }
+        new ObjectUrl('http://aliexpress.ru/fsd');
+        new ObjectUrl('https://www.ozon.ru/context/detail/id/144037117/?gclsrc=aw.ds');
 
-        try {
+        $this->assertException(function() {
             new ObjectUrl('https://www.localhost/');
+        }, Exception::class);
+
+        $this->assertException(function() {
             new ObjectUrl('http://localhost/');
+        }, Exception::class);
+
+        $this->assertException(function() {
             new ObjectUrl('http://aliexpress.ru:80/fsd');
+        }, Exception::class);
+
+        $this->assertException(function() {
             new ObjectUrl('http://[2001:0db8:85a3:0000:0000:8a2e:0370:7334]/');
+        }, Exception::class);
+
+        $this->assertException(function() {
             new ObjectUrl('http://127.0.0.1/');
+        }, Exception::class);
+
+        $this->assertException(function() {
             new ObjectUrl('http://abc:abc@test.ru/');
+        }, Exception::class);
+
+        $this->assertException(function() {
             new ObjectUrl('http://abc@test.ru/');
-            $this->assertTrue(false);
-        } catch (Exception $e) {
-            $this->assertTrue(true);
-        }
+        }, Exception::class);
     }
 
     public function test_is_scheme(): void

@@ -2,9 +2,8 @@
 
 use One23\Helpers\Exceptions\Version as Exception;
 use One23\Helpers\Version;
-use PHPUnit\Framework\TestCase;
 
-class VersionTest extends TestCase
+class VersionTest extends \Tests\TestCase
 {
     public function test_compare()
     {
@@ -51,12 +50,9 @@ class VersionTest extends TestCase
 
     public function test_to_string()
     {
-        try {
+        $this->assertException(function() {
             Version::object('abc');
-            $this->assertTrue(false);
-        } catch (Exception $e) {
-            $this->assertTrue(true);
-        }
+        }, Exception::class);
 
         $this->assertEquals(
             '1.2.3',

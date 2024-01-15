@@ -2,9 +2,8 @@
 
 use One23\Helpers\Enums;
 use One23\Helpers\Value;
-use PHPUnit\Framework\TestCase;
 
-class ValueTest extends TestCase
+class ValueTest extends \Tests\TestCase
 {
     public function test_first(): void
     {
