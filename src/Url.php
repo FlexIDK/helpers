@@ -9,6 +9,8 @@ class Url
         'onlyHttp' => null,
         'acceptAuth' => null,
         'minHostLevel' => 2,
+        'maxHostLevel' => 127,
+        'maxHostLength' => 253,
         'acceptIp' => null,
         'acceptPort' => null,
     ];
@@ -27,16 +29,22 @@ class Url
      *      defaultScheme: ?string,
      *      allowWildcard: ?bool,
      *      onlyHttp: ?bool,
-     *      minHostLevel: ?int,
+     *      minHostLevel: int,
+     *      maxHostLevel: int,
+     *      maxHostLength: int,
      *      acceptPort: ?bool,
      *      acceptIp: ?bool,
      *      acceptAuth: ?bool
      * } $options
      */
     public static function parse(
-        string|array|ObjectUrl $val,
+        string|array|ObjectUrl|null $val = null,
         array $options = [],
     ): ?array {
+        if (empty($val)) {
+            return null;
+        }
+
         try {
             return (new ObjectUrl(
                 $val,
@@ -53,17 +61,23 @@ class Url
      *      defaultScheme: ?string,
      *      allowWildcard: ?bool,
      *      onlyHttp: ?bool,
-     *      minHostLevel: ?int,
+     *      minHostLevel: int,
+     *      maxHostLevel: int,
+     *      maxHostLength: int,
      *      acceptPort: ?bool,
      *      acceptIp: ?bool,
      *      acceptAuth: ?bool
      * } $options
      */
     public static function build(
-        string|array|ObjectUrl $val,
+        string|array|ObjectUrl|null $val = null,
         array $components2replace = [],
         array $options = [],
     ): ?string {
+        if (empty($val)) {
+            return null;
+        }
+
         try {
             $options = static::options($options);
 
@@ -79,14 +93,16 @@ class Url
      *      defaultScheme: ?string,
      *      allowWildcard: ?bool,
      *      onlyHttp: ?bool,
-     *      minHostLevel: ?int,
+     *      minHostLevel: int,
+     *      maxHostLevel: int,
+     *      maxHostLength: int,
      *      acceptPort: ?bool,
      *      acceptIp: ?bool,
      *      acceptAuth: ?bool
      * } $options
      */
     public static function object(
-        string|array|ObjectUrl $val,
+        string|array|ObjectUrl|null $val = null,
         array $options = [],
     ): ObjectUrl {
         return new ObjectUrl(
@@ -96,7 +112,7 @@ class Url
     }
 
     protected static function defaultObject(
-        string|array|ObjectUrl $val,
+        string|array|ObjectUrl|null $val = null,
         array $options = [],
     ): ?ObjectUrl {
         if (empty($val)) {
@@ -110,43 +126,55 @@ class Url
     }
 
     public static function isIp(
-        string|array|ObjectUrl $val,
+        string|array|ObjectUrl|null $val = null,
         array $options = [],
     ): bool {
         try {
-            return (bool)static::defaultObject($val, $options)
-                ?->isIp();
+            $obj = static::defaultObject($val, $options);
+            if (! $obj) {
+                return false;
+            }
+
+            return $obj->isIp();
         } catch (\Throwable) {
             return false;
         }
     }
 
     public static function isIpV4(
-        string|array|ObjectUrl $val,
+        string|array|ObjectUrl|null $val = null,
         array $options = [],
     ): bool {
         try {
-            return (bool)static::defaultObject($val, $options)
-                ?->isIpV4();
+            $obj = static::defaultObject($val, $options);
+            if (! $obj) {
+                return false;
+            }
+
+            return $obj->isIpV4();
         } catch (\Throwable) {
             return false;
         }
     }
 
     public static function isIpV6(
-        string|array|ObjectUrl $val,
+        string|array|ObjectUrl|null $val = null,
         array $options = [],
     ): bool {
         try {
-            return (bool)static::defaultObject($val, $options)
-                ?->isIpV6();
+            $obj = static::defaultObject($val, $options);
+            if (! $obj) {
+                return false;
+            }
+
+            return $obj->isIpV6();
         } catch (\Throwable) {
             return false;
         }
     }
 
     public static function isHttp(
-        string|array|ObjectUrl $val,
+        string|array|ObjectUrl|null $val = null,
         array $options = [],
     ): bool {
         if (empty($val)) {
@@ -154,34 +182,50 @@ class Url
         }
 
         try {
-            return static::defaultObject($val, $options)
-                ?->isHttp();
+            $obj = static::defaultObject($val, $options);
+            if (! $obj) {
+                return false;
+            }
+
+            return $obj->isHttp();
         } catch (\Throwable) {
             return false;
         }
     }
 
     public static function host(
-        string|array|ObjectUrl $val,
+        string|array|ObjectUrl|null $val = null,
         array $options = [],
     ): ?string {
-        return static::defaultObject($val, $options)
-            ?->getHost();
+        try {
+            return static::defaultObject($val, $options)
+                ?->getHost();
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
     public static function hostHuman(
-        string|array|ObjectUrl $val,
+        string|array|ObjectUrl|null $val = null,
         array $options = [],
     ): ?string {
-        return static::defaultObject($val, $options)
-            ?->getHostHuman();
+        try {
+            return static::defaultObject($val, $options)
+                ?->getHostHuman();
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
     public static function host2level(
-        string|array|ObjectUrl $val,
+        string|array|ObjectUrl|null $val = null,
         array $options = [],
     ): ?string {
-        return static::defaultObject($val, $options)
-            ?->getHost2level();
+        try {
+            return static::defaultObject($val, $options)
+                ?->getHost2level();
+        } catch (\Throwable) {
+            return null;
+        }
     }
 }

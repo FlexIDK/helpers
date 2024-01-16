@@ -11,6 +11,8 @@ class OptionsTest extends \Tests\TestCase
             'defaultScheme' => [
                 'nullable' => true,
                 'type' => 'string',
+                'min' => 1,
+                'max' => 32,
                 'default' => null,
             ],
             'allowWildcard' => [
@@ -24,10 +26,25 @@ class OptionsTest extends \Tests\TestCase
                 'default' => true,
             ],
             'minHostLevel' => [
-                'nullable' => true,
+                'nullable' => false,
+                'type' => 'int',
+                'min' => 2,
+                'max' => 127,
+                'default' => 2,
+            ],
+            'maxHostLevel' => [
+                'nullable' => false,
                 'type' => 'int',
                 'min' => 1,
-                'default' => 2,
+                'max' => 127,
+                'default' => 127,
+            ],
+            'maxHostLength' => [
+                'nullable' => false,
+                'type' => 'int',
+                'min' => 1,
+                'max' => 255,
+                'default' => 253,
             ],
             'acceptPort' => [
                 'nullable' => true,
@@ -107,6 +124,8 @@ class OptionsTest extends \Tests\TestCase
                 'allowWildcard' => false,
                 'onlyHttp' => true,
                 'minHostLevel' => 2,
+                'maxHostLevel' => 127,
+                'maxHostLength' => 253,
                 'acceptPort' => false,
                 'acceptIp' => false,
                 'acceptAuth' => false,
@@ -153,6 +172,40 @@ class OptionsTest extends \Tests\TestCase
         );
     }
 
+    public function test_one()
+    {
+        $this->assertException(function() {
+            Options::one(
+                null,
+                [
+                    'nullable' => false,
+                    'type' => 'string',
+                ]
+            );
+        });
+
+        $this->assertException(function() {
+            Options::one(
+                '',
+                [
+                    'type' => 'string',
+                    'min' => 1,
+                ]
+            );
+        });
+
+        $this->assertException(function() {
+            Options::one(
+                'http',
+                [
+                    'nullable' => false,
+                    'type' => 'string',
+                    'max' => 3,
+                ]
+            );
+        });
+    }
+
     public function test_all()
     {
         $this->assertEquals(
@@ -179,6 +232,8 @@ class OptionsTest extends \Tests\TestCase
                 'allowWildcard' => true,
                 'onlyHttp' => true,
                 'minHostLevel' => 2,
+                'maxHostLevel' => 127,
+                'maxHostLength' => 253,
                 'acceptPort' => false,
                 'acceptIp' => false,
                 'acceptAuth' => false,
@@ -213,6 +268,20 @@ class OptionsTest extends \Tests\TestCase
         $this->assertException(function() {
             Options::all(
                 ['minHostLevel' => 'abc'],
+                static::options()
+            );
+        }, Exception::class);
+
+        $this->assertException(function() {
+            Options::all(
+                ['minHostLevel' => 1],
+                static::options()
+            );
+        }, Exception::class);
+
+        $this->assertException(function() {
+            Options::all(
+                ['maxHostLevel' => 128],
                 static::options()
             );
         }, Exception::class);

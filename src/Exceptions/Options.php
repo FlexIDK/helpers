@@ -8,6 +8,8 @@ class Options extends BaseException
 {
     const UNDEFINED_TYPE = 1;
 
+    const INVALID_VALUE = 9;
+
     const INVALID_VALUE_IS_NULL = 2;
 
     const INVALID_VALUE_IS_NOT_STR = 3;
@@ -17,4 +19,8 @@ class Options extends BaseException
     const INVALID_VALUE_IS_NOT_NUMERIC = 5;
 
     const INVALID_VALUE_IS_NOT_BOOL = 6;
+
+    const INVALID_VALUE_IS_TOO_SHORT = 7;
+
+    const INVALID_VALUE_IS_TOO_LONG = 8;
 }

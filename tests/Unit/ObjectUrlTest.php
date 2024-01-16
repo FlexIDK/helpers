@@ -339,6 +339,43 @@ class ObjectUrlTest extends \Tests\TestCase
                 'allowWildcard' => true,
             ])->getHost()
         );
+
+        //
+
+        $this->assertException(function() {
+            new ObjectUrl(
+                'http://localhost/',
+                [
+                    'minHostLevel' => 2,
+                ]
+            );
+        });
+
+        $a = array_fill(0, 127, 'a');
+        $maxUrl = 'https://' . implode('.', $a) . '/';
+
+        $this->assertEquals(
+            $maxUrl,
+            (new ObjectUrl($maxUrl))->toString()
+        );
+
+        $this->assertException(function() use ($maxUrl) {
+            new ObjectUrl(
+                $maxUrl,
+                [
+                    'maxHostLevel' => 126,
+                ]
+            );
+        });
+
+        $this->assertException(function() use ($maxUrl) {
+            new ObjectUrl(
+                $maxUrl,
+                [
+                    'maxHostLength' => 100,
+                ]
+            );
+        });
     }
 
     public function test_host_human(): void

@@ -18,17 +18,17 @@ class Url extends BaseException
 
     const INVALID_URL_HOST_IPV6 = 6;
 
-    const INVALID_URL_HOST_LEVEL = 15;
+    const INVALID_URL_HOST_LEVEL_MIN = 15;
+
+    const INVALID_URL_HOST_LEVEL_MAX = 27;
+
+    const INVALID_URL_HOST_LENGTH = 28;
 
     const INVALID_URL_HOST_CHARTERS = 26;
 
     const INVALID_URL_PORT = 7;
 
-    const INVALID_URL_PATH = 10;
-
     const INVALID_URL_QUERY = 11;
-
-    const INVALID_URL_FRAGMENT = 12;
 
     const UNDEFINED_SCHEME = 21;
 

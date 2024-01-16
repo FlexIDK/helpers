@@ -111,10 +111,32 @@ class Options
                     throw new Exception('Value is not string', Exception::INVALID_VALUE_IS_NOT_STR);
                 }
 
-                return Str::val(
+                $res = Str::val(
                     $value,
-                    $config['default'] ?? null,
+                    null,
                 );
+
+                if (is_null($res)) {
+                    throw new Exception('Value is empty', Exception::INVALID_VALUE_IS_NULL);
+                }
+
+                $min = Number::get($config['min'] ?? null, null, 0);
+                if (
+                    ! is_null($min) &&
+                    mb_strlen($res) < $min
+                ) {
+                    throw new Exception('Value is too short', Exception::INVALID_VALUE_IS_TOO_SHORT);
+                }
+
+                $max = Number::get($config['max'] ?? null, null, 0);
+                if (
+                    ! is_null($max) &&
+                    mb_strlen($res) > $max
+                ) {
+                    throw new Exception('Value is too long', Exception::INVALID_VALUE_IS_TOO_LONG);
+                }
+
+                return $res;
 
             case 'int':
             case 'integer':
@@ -122,12 +144,18 @@ class Options
                     throw new Exception('Value is not integer', Exception::INVALID_VALUE_IS_NOT_INT);
                 }
 
-                return Integer::get(
+                $res = Integer::get(
                     $value,
-                    $config['default'] ?? null,
+                    null,
                     $config['min'] ?? null,
                     $config['max'] ?? null
                 );
+
+                if (is_null($res)) {
+                    throw new Exception('Invalid value', Exception::INVALID_VALUE);
+                }
+
+                return $res;
 
             case 'number':
             case 'float':
@@ -138,12 +166,18 @@ class Options
                     throw new Exception('Value is not float/integer', Exception::INVALID_VALUE_IS_NOT_NUMERIC);
                 }
 
-                return Number::get(
+                $res = Number::get(
                     $value,
-                    $config['default'] ?? null,
+                    null,
                     $config['min'] ?? null,
                     $config['max'] ?? null
                 );
+
+                if (is_null($res)) {
+                    throw new Exception('Invalid value', Exception::INVALID_VALUE);
+                }
+
+                return $res;
 
             case 'bool':
                 if (! is_bool($value)) {

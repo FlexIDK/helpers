@@ -15,10 +15,12 @@ trait Host
 {
     /**
      * @param array{
-     *     minHostLevel: int,
-     *     acceptIp: ?bool,
-     *     allowWildcard: ?bool,
-     *     hostHuman: ?bool,
+     *      minHostLevel: int,
+     *      maxHostLevel: int,
+     *      maxHostLength: int,
+     *      acceptIp: ?bool,
+     *      allowWildcard: ?bool,
+     *      hostHuman: ?bool,
      * } $options
      */
     protected function value2host(
@@ -62,6 +64,7 @@ trait Host
         }
         // hostname
         else {
+            $idn = $val;
             if ($options['hostHuman'] ?? false) {
                 try {
                     $val = idn_to_utf8($val, 0, INTL_IDNA_VARIANT_UTS46);
@@ -69,18 +72,28 @@ trait Host
                 }
             }
 
+            if (mb_strlen($idn) > (int)($options['maxHostLength'] ?? 255)) {
+                throw new Exception('Host is too long', Exception::INVALID_URL_HOST_LENGTH);
+            }
+
+            $cnt = count(explode('.', $idn));
+            if ($cnt > (int)($options['maxHostLevel'] ?? 127)) {
+                throw new Exception('Host level is too high', Exception::INVALID_URL_HOST_LEVEL_MAX);
+            }
+
+            //
+
             $host = preg_replace('/^www\./u', '', $val);
-            $hostParts = explode('.', $host);
+            $partsWithoutWww = explode('.', $host);
 
             if (
-                ((int)$options['minHostLevel'] ?? 0) > 0 &&
-                count(array_filter($hostParts)) < (int)$options['minHostLevel']
+                count($partsWithoutWww) < (int)($options['minHostLevel'] ?? 1)
             ) {
-                throw new Exception('Host level is too low', Exception::INVALID_URL_HOST_LEVEL);
+                throw new Exception('Host level is too low', Exception::INVALID_URL_HOST_LEVEL_MIN);
             }
 
             array_walk(
-                $hostParts,
+                $partsWithoutWww,
                 function(&$part) use (
                     $options
                 ) {
@@ -105,10 +118,12 @@ trait Host
 
     /**
      * @param  array{
-     *     minHostLevel: int,
-     *     acceptIp: ?bool,
-     *     allowWildcard: ?bool,
-     *     hostHuman: ?bool,
+     *      minHostLevel: int,
+     *      maxHostLevel: int,
+     *      maxHostLength: int,
+     *      acceptIp: ?bool,
+     *      allowWildcard: ?bool,
+     *      hostHuman: ?bool,
      * }  $options
      */
     public function setHost(

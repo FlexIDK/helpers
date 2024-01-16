@@ -24,19 +24,25 @@ class ObjectUrl implements \Stringable, Arrayable
      *     defaultScheme: ?string,
      *     allowWildcard: ?bool,
      *     onlyHttp: ?bool,
-     *     minHostLevel: ?int,
+     *     minHostLevel: int,
+     *     maxHostLevel: int,
+     *     maxHostLength: int,
      *     acceptPort: ?bool,
      *     acceptIp: ?bool,
      *     acceptAuth: ?bool
      * } $options
      */
     public function __construct(
-        string|array|self $val,
+        string|array|ObjectUrl|null $val = null,
         array $options = [],
     ) {
         $this->options = $this->getOptions($options);
 
         //
+
+        if (empty($val)) {
+            throw new Exception('Empty `value`', Exception::INVALID_VALUE);
+        }
 
         if (is_string($val)) {
             $this->parse($val);
@@ -85,10 +91,25 @@ class ObjectUrl implements \Stringable, Arrayable
                 'default' => true,
             ],
             'minHostLevel' => [
-                'nullable' => true,
+                'nullable' => false,
                 'type' => 'int',
                 'min' => 1,
+                'max' => 127,
                 'default' => 2,
+            ],
+            'maxHostLevel' => [
+                'nullable' => false,
+                'type' => 'int',
+                'min' => 1,
+                'max' => 127,
+                'default' => 127,
+            ],
+            'maxHostLength' => [
+                'nullable' => false,
+                'type' => 'int',
+                'min' => 1,
+                'max' => 255,
+                'default' => 253,
             ],
             'acceptPort' => [
                 'nullable' => true,
@@ -181,7 +202,12 @@ class ObjectUrl implements \Stringable, Arrayable
     }
 
     /**
-     * @param  array{hostHuman: bool, minHostLevel: int}  $options
+     * @param  array{
+     *      hostHuman: bool,
+     *      minHostLevel: int,
+     *      maxHostLevel: int,
+     *      maxHostLength: int,
+     * }  $options
      */
     public function build(
         ?array $components2replace = null,
