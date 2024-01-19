@@ -9,6 +9,7 @@ class Arr
 {
     use Traits\Arr\KeyStartWith;
     use Traits\Arr\Substr;
+    use Traits\Arr\Sum;
 
     /**
      * @param  array{uniq: ?bool, type: ?string}  $options

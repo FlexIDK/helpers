@@ -4,6 +4,62 @@ use One23\Helpers\Arr;
 
 class ArrTest extends \Tests\TestCase
 {
+    public function test_sum(): void
+    {
+        $this->assertEquals(
+            [
+                'a' => 2,
+                'b' => 2,
+                'c' => 3,
+            ],
+            Arr::sum(
+                [
+                    'a' => 1,
+                    'b' => 2,
+                ],
+                [
+                    'a' => 1,
+                    'c' => 3,
+                ],
+            )
+        );
+
+        $this->assertEquals(
+            [
+                'a' => 3,
+                'b' => 2,
+                'c' => 6,
+            ],
+            Arr::sum(
+                [
+                    'a' => 1,
+                    'b' => 2,
+                ],
+                [
+                    1, 2, 3, 4
+                ],
+                [
+                    'a' => 1,
+                    'c' => 3,
+                ],
+                [
+                    'a' => 1,
+                    'c' => 3,
+                ],
+            )
+        );
+
+        $this->assertEquals(
+            [],
+            Arr::sum()
+        );
+
+        $this->assertEquals(
+            [],
+            Arr::sum([])
+        );
+    }
+
     public function test_substr(): void
     {
         $this->assertEquals(
