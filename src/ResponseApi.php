@@ -293,8 +293,12 @@ class ResponseApi implements \Stringable, Arrayable, Jsonable, Responsable
     {
         $previous = $e->getPrevious();
 
+        $code = $code ?: $e->getCode();
         $self = (new static())
-            ->setError($message ?: $e->getMessage(), $code ?: $e->getCode());
+            ->setError(
+                $message ?: $e->getMessage(),
+                (is_int($code) ? $code : 0),
+            );
 
         return $self
             ->setData(Arr::filterNull([

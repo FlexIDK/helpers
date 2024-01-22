@@ -8,6 +8,43 @@ class ArrTest extends \Tests\TestCase
     {
         $this->assertEquals(
             [
+                'a' => [['a'], ['a']],
+                'b' => [['b']],
+                'c' => [['d']],
+            ],
+            Arr::sum(
+                [
+                    'a' => ['a'],
+                    'b' => ['b'],
+                ],
+                [
+                    'a' => ['a'],
+                    'c' => ['d'],
+                ],
+            )
+        );
+
+        $this->assertEquals(
+            [
+                'a' => ['a', 'c'],
+                'b' => ['b', 'b'],
+                'c' => ['d'],
+            ],
+            Arr::sum(
+                [
+                    'a' => 'a',
+                    'b' => 'b',
+                ],
+                [
+                    'a' => 'c',
+                    'b' => 'b',
+                    'c' => 'd',
+                ],
+            )
+        );
+
+        $this->assertEquals(
+            [
                 'a' => 2,
                 'b' => 2,
                 'c' => 3,
@@ -36,7 +73,7 @@ class ArrTest extends \Tests\TestCase
                     'b' => 2,
                 ],
                 [
-                    1, 2, 3, 4
+                    1, 2, 3, 4,
                 ],
                 [
                     'a' => 1,

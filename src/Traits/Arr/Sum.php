@@ -2,10 +2,6 @@
 
 namespace One23\Helpers\Traits\Arr;
 
-use Illuminate\Support\Str as IlluminateStr;
-use One23\Helpers\Arr;
-use One23\Helpers\Integer;
-
 trait Sum
 {
     public static function sum(
@@ -25,6 +21,19 @@ trait Sum
 
                 if (is_numeric($val)) {
                     $res[$key] += $val;
+                }
+
+                if (
+                    is_array($val) ||
+                    is_string($val)
+                ) {
+                    if (! is_array($res[$key])) {
+                        $res[$key] = [];
+                    }
+
+                    if (! empty($val)) {
+                        $res[$key][] = $val;
+                    }
                 }
             }
         }
