@@ -387,7 +387,7 @@ class ObjectUrl implements \Stringable, Arrayable
     }
 
     /**
-     * @param  bool|null  $append null: replace, true: append, false: prepend
+     * @param  bool|null  $append  null: replace, true: append, false: prepend
      */
     public function setQuery(
         string|array|null $qs = null,
