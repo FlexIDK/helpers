@@ -4,9 +4,6 @@ namespace One23\Helpers;
 
 use One23\Helpers\Exceptions\Options as Exception;
 
-/**
- * @todo requried test
- */
 class Options
 {
     public static function merge(...$configs): array
@@ -45,7 +42,7 @@ class Options
     }
 
     /**
-     * @param array<int, array{
+     * @param array<string, array{
      *     nullable: ?bool,
      *     type: string,
      *     default: ?mixed,

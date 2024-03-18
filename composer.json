@@ -4,7 +4,7 @@
   "homepage": "https://github.com/FlexIDK/helpers",
   "description": "One23 Helpers for php && laravel",
   "license": "MIT",
-  "version": "v0.2.6.1",
+  "version": "v0.3.0.0",
   "authors": [
   ],
   "require": {
@@ -12,17 +12,17 @@
     "ext-json": "*",
     "ext-mbstring": "*",
     "ext-intl": "*",
-    "illuminate/contracts": "~v10",
-    "illuminate/support": "~v10",
-    "illuminate/database": "~v10",
+    "illuminate/contracts": "^v10|^v11",
+    "illuminate/support": "^v10|^v11",
+    "illuminate/database": "^v10|^v11",
     "nesbot/carbon": "~2",
     "egulias/email-validator": "~4"
   },
   "require-dev": {
-    "symfony/var-dumper": "~v6",
-    "phpunit/phpunit": "~10",
+    "symfony/var-dumper": "^v6|^v7",
+    "phpunit/phpunit": "^v10|^v11",
     "phpstan/phpstan": "~1.10",
-    "laravel/pint": "~v1.13.8",
+    "laravel/pint": "~v1.14.0",
     "nunomaduro/larastan": "~v2",
     "fakerphp/faker": "v1.23.1"
   },
@@ -54,6 +54,11 @@
     "laravel": {
       "providers": [
       ]
+    }
+  },
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": false
     }
   }
 }
