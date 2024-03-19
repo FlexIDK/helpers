@@ -36,3 +36,6 @@ desktop.ini
 .Spotlight-V100
 .Trashes
 ._*
+
+# project
+*.phar

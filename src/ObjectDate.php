@@ -241,7 +241,8 @@ class ObjectDate
             }
         }
 
-        $days = $to->diffInDays($from);
+        $days = $to->diffInDays($from, true);
+
         if ($days > $this->maxDays) {
             if ($sliceBegin) {
                 $to = $from->addDays($this->maxDays - 1);
