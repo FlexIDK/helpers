@@ -197,6 +197,60 @@ class ObjectUrlTest extends \Tests\TestCase
         );
     }
 
+    public function test_uri(): void
+    {
+        $url = new ObjectUrl('https://www.example.com/path?abc=1#fragment');
+
+        $this->assertEquals(
+            '/path?abc=1#fragment',
+            $url->getUri([])
+        );
+
+        $this->assertEquals(
+            '/path?abc=1',
+            $url->getUri([
+                'fragment' => null,
+            ])
+        );
+
+        $this->assertEquals(
+            '/?abc=1#fragment',
+            $url->getUri([
+                'path' => '',
+            ])
+        );
+
+        $this->assertEquals(
+            '/path#fragment',
+            $url->getUri([
+                'query' => '',
+            ])
+        );
+
+        $this->assertEquals(
+            '/path#fragment',
+            $url->getUri([
+                'query' => [],
+            ])
+        );
+
+        $this->assertEquals(
+            '/path#fragment',
+            $url->getUri([
+                'query' => null,
+            ])
+        );
+
+        $this->assertEquals(
+            '/',
+            $url->getUri([
+                'path' => null,
+                'query' => null,
+                'fragment' => null,
+            ])
+        );
+    }
+
     public function test_host(): void
     {
         $url = new ObjectUrl('https://www.example.com/path?#fragment');

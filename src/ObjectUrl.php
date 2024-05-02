@@ -242,28 +242,6 @@ class ObjectUrl implements \Stringable, Arrayable
             $options
         );
 
-        $components['path'] = $this->value2path(
-            $components['path'] ?? null
-        );
-
-        if (! empty($components['query'] ?? [])) {
-            if (is_string($components['query'])) {
-                $components['query'] = $this->query2dotArray($components['query']);
-            }
-
-            if (! is_array($components['query'])) {
-                throw new Exception('Invalid `query` type', Exception::INVALID_URL_QUERY);
-            }
-
-            $components['query'] = Arr::undot(
-                $this->query2dotArray($components['query'])
-            );
-        }
-
-        $components['fragment'] = $this->value2fragment(
-            $components['fragment'] ?? null
-        );
-
         //
 
         return
@@ -275,13 +253,7 @@ class ObjectUrl implements \Stringable, Arrayable
 
             $this->port2build($components) .
 
-            $this->path2build($components) .
-
-            (! empty($components['query'] ?? [])
-                ? '?' . $this->queryArray2queryString($components['query'])
-                : '') .
-
-            $this->fragment2build($components);
+            $this->getUri($components);
     }
 
     // query
@@ -470,5 +442,49 @@ class ObjectUrl implements \Stringable, Arrayable
                 'hostHuman' => true,
             ]
         );
+    }
+
+    /**
+     * @param  array{path: string|null, query: string|array, fragment: string|null}  $options
+     */
+    public function getUri(?array $components2replace = null): string
+    {
+        $components = [
+            ...$this->toArray(),
+            ...($components2replace ?: []),
+        ];
+
+        $components['path'] = $this->value2path(
+            $components['path'] ?? null
+        );
+
+        if (! empty($components['query'] ?? [])) {
+            if (is_string($components['query'])) {
+                $components['query'] = $this->query2dotArray($components['query']);
+            }
+
+            if (! is_array($components['query'])) {
+                throw new Exception('Invalid `query` type', Exception::INVALID_URL_QUERY);
+            }
+
+            $components['query'] = Arr::undot(
+                $this->query2dotArray($components['query'])
+            );
+        }
+
+        $components['fragment'] = $this->value2fragment(
+            $components['fragment'] ?? null
+        );
+
+        //
+
+        return
+            $this->path2build($components) .
+
+            (! empty($components['query'] ?? [])
+                ? '?' . $this->queryArray2queryString($components['query'])
+                : '') .
+
+            $this->fragment2build($components);
     }
 }
