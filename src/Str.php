@@ -128,10 +128,10 @@ class Str
         }
 
         // check email
-        $validator = new EmailValidator\EmailValidator();
+        $validator = new EmailValidator\EmailValidator;
         $res = $validator->isValid(
             $str,
-            new EmailValidator\Validation\RFCValidation()
+            new EmailValidator\Validation\RFCValidation
         );
 
         return $res

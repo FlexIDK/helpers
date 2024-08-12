@@ -51,4 +51,9 @@ class Date extends AbstractDatetime
             $default
         );
     }
+
+    public static function toString(mixed $value, mixed $default = null): ?string
+    {
+        return static::toDateString($value, $default);
+    }
 }

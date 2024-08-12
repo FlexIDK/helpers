@@ -2,8 +2,9 @@
 
 use One23\Helpers\ObjectUrl;
 use One23\Helpers\Url;
+use Tests\TestCase;
 
-class UrlTest extends \Tests\TestCase
+class UrlTest extends TestCase
 {
     public function test_parse(): void
     {

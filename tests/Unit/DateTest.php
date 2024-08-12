@@ -2,8 +2,9 @@
 
 use Carbon\CarbonInterface;
 use One23\Helpers\Date;
+use Tests\TestCase;
 
-class DateTest extends \Tests\TestCase
+class DateTest extends TestCase
 {
     public function test_to_date_string(): void
     {

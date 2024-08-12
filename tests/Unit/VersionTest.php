@@ -2,8 +2,9 @@
 
 use One23\Helpers\Exceptions\Version as Exception;
 use One23\Helpers\Version;
+use Tests\TestCase;
 
-class VersionTest extends \Tests\TestCase
+class VersionTest extends TestCase
 {
     public function test_compare()
     {

@@ -1,8 +1,9 @@
 <?php
 
 use One23\Helpers\Number;
+use Tests\TestCase;
 
-class NumberTest extends \Tests\TestCase
+class NumberTest extends TestCase
 {
     public function test_val(): void
     {
@@ -19,7 +20,7 @@ class NumberTest extends \Tests\TestCase
         );
 
         $this->assertTrue(
-            is_null(Number::val(new \stdClass()))
+            is_null(Number::val(new \stdClass))
         );
 
         $this->assertTrue(

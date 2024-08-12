@@ -1,8 +1,9 @@
 <?php
 
 use One23\Helpers\Db;
+use Tests\TestCase;
 
-class DbTest extends \Tests\TestCase
+class DbTest extends TestCase
 {
     public function test_arr2json(): void
     {

@@ -61,6 +61,11 @@ class Datetime extends AbstractDatetime
         );
     }
 
+    public static function toString(mixed $value, mixed $default = null): ?string
+    {
+        return static::toDateTimeString($value, $default);
+    }
+
     public static function toDateTimeString(mixed $value, mixed $default = null): ?string
     {
         $res = static::val($value, $default);

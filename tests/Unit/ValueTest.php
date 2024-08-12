@@ -2,8 +2,9 @@
 
 use One23\Helpers\Enums;
 use One23\Helpers\Value;
+use Tests\TestCase;
 
-class ValueTest extends \Tests\TestCase
+class ValueTest extends TestCase
 {
     public function test_first(): void
     {

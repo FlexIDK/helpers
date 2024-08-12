@@ -2,8 +2,9 @@
 
 use One23\Helpers\Exceptions\Str as Exception;
 use One23\Helpers\Str;
+use Tests\TestCase;
 
-class StrTest extends \Tests\TestCase
+class StrTest extends TestCase
 {
     public function test_first(): void
     {

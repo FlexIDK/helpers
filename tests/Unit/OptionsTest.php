@@ -2,8 +2,9 @@
 
 use One23\Helpers\Exceptions\Options as Exception;
 use One23\Helpers\Options;
+use Tests\TestCase;
 
-class OptionsTest extends \Tests\TestCase
+class OptionsTest extends TestCase
 {
     protected static function options(): array
     {

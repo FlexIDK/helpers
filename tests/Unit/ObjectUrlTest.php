@@ -3,8 +3,9 @@
 use One23\Helpers\Arr;
 use One23\Helpers\Exceptions\Url as Exception;
 use One23\Helpers\ObjectUrl;
+use Tests\TestCase;
 
-class ObjectUrlTest extends \Tests\TestCase
+class ObjectUrlTest extends TestCase
 {
     public function test_encode_decode(): void
     {

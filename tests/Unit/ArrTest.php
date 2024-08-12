@@ -1,8 +1,9 @@
 <?php
 
 use One23\Helpers\Arr;
+use Tests\TestCase;
 
-class ArrTest extends \Tests\TestCase
+class ArrTest extends TestCase
 {
     public function test_sum(): void
     {
