@@ -11,6 +11,15 @@ class Str
     use Traits\Last;
     use Traits\Str\Contains;
 
+    public static function hasEntityCharters(string $str): bool
+    {
+        if (preg_match('/&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-f]{1,6});/i', $str)) {
+            return true;
+        }
+
+        return false;
+    }
+
     public static function md5(mixed $val, int $length = 32): string
     {
         $length = Number::int($length, null, 1, 32);

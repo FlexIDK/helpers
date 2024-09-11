@@ -266,7 +266,7 @@ class ResponseApi implements \Stringable, Arrayable, Jsonable, Responsable
 
     public static function raw(mixed $data): ResponseApi
     {
-        return (new static())
+        return (new static)
             ->setIsSuccess(true)
             ->setData($data)
             ->isRaw(true);
@@ -274,14 +274,14 @@ class ResponseApi implements \Stringable, Arrayable, Jsonable, Responsable
 
     public static function ok(mixed $data): ResponseApi
     {
-        return (new static())
+        return (new static)
             ->setIsSuccess(true)
             ->setData($data);
     }
 
     public static function error(string $message, ?int $code = null, array $data = []): ResponseApi
     {
-        return (new static())
+        return (new static)
             ->setError($message, $code)
             ->setData([
                 'fields' => [],
@@ -294,7 +294,7 @@ class ResponseApi implements \Stringable, Arrayable, Jsonable, Responsable
         $previous = $e->getPrevious();
 
         $code = $code ?: $e->getCode();
-        $self = (new static())
+        $self = (new static)
             ->setError(
                 $message ?: $e->getMessage(),
                 (is_int($code) ? $code : 0),

@@ -10,9 +10,41 @@ composer require one23/helpers
 
 ## Helpers
 
+### Arr
+
+```php
+use One23\Helpers\Arr;
+
+Arr::randomValue(['a', 'b', 'c']); // a or b or c
+Arr::randomValues(['a', 'b', 'c'], 2); // [a, b] or [b, c] or [c, a]
+Arr::randomValues(['a', 'b', 'c'], 3); // shuffle array
+
+```
+
+### Url
+
+```php
+use One23\Helpers\Url;
+
+$newObj = Url::object('http://aliexpress.ru/fsd')->clone(); // clone
+
+
+
+```
+
+### String
+
+```php
+use One23\Helpers\Str;
+
+Str::hasEntityCharters('abc &a abc'); // false
+Str::hasEntityCharters('abc &nbsp; abc'); // true
+
+```
+
 ### Random  
 
-```shell
+```php
 use One23\Helpers\Random;
 
 Random::alpha(10); // abcdefghij (a-z)
@@ -40,7 +72,7 @@ Random::digitalAlpha(6); // alias of alphaDigital
 
 ### Integer
 
-```shell
+```php
 use One23\Helpers\Integer;
 
 Integer::val('123'); // 123

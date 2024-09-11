@@ -4,7 +4,9 @@ namespace One23\Helpers;
 
 class Url
 {
-    protected static $defaultOptions = [
+    use Traits\Url\Uri;
+
+    protected static $_defaultOptions = [
         'allowWildcard' => false,
         'onlyHttp' => null,
         'acceptAuth' => null,
@@ -14,15 +16,6 @@ class Url
         'acceptIp' => null,
         'acceptPort' => null,
     ];
-
-    protected static function options(
-        array $options = []
-    ): array {
-        return Options::merge(
-            static::$defaultOptions,
-            $options
-        );
-    }
 
     /**
      * @param array{
@@ -36,6 +29,17 @@ class Url
      *      acceptIp: ?bool,
      *      acceptAuth: ?bool
      * } $options
+     * @return null|array{
+     *      scheme: string,
+     *      host: string,
+     *      port: integer,
+     *      user: string,
+     *      pass: string,
+     *      path: string,
+     *      query: array,
+     *      query_string: string,
+     *      fragment: string,
+     * }
      */
     public static function parse(
         string|array|ObjectUrl|null $val = null,
@@ -48,7 +52,10 @@ class Url
         try {
             return (new ObjectUrl(
                 $val,
-                static::options($options)
+                Options::merge(
+                    static::$_defaultOptions,
+                    $options
+                )
             ))
                 ->toArray();
         } catch (\Throwable) {
@@ -79,7 +86,10 @@ class Url
         }
 
         try {
-            $options = static::options($options);
+            $options = Options::merge(
+                static::$_defaultOptions,
+                $options
+            );
 
             return (new ObjectUrl($val, $options))
                 ->build($components2replace, $options);
@@ -111,7 +121,7 @@ class Url
         );
     }
 
-    protected static function defaultObject(
+    protected static function _defaultObject(
         string|array|ObjectUrl|null $val = null,
         array $options = [],
     ): ?ObjectUrl {
@@ -121,7 +131,10 @@ class Url
 
         return new ObjectUrl(
             $val,
-            static::options($options)
+            Options::merge(
+                static::$_defaultOptions,
+                $options
+            )
         );
     }
 
@@ -130,7 +143,7 @@ class Url
         array $options = [],
     ): bool {
         try {
-            $obj = static::defaultObject($val, $options);
+            $obj = static::_defaultObject($val, $options);
             if (! $obj) {
                 return false;
             }
@@ -146,7 +159,7 @@ class Url
         array $options = [],
     ): bool {
         try {
-            $obj = static::defaultObject($val, $options);
+            $obj = static::_defaultObject($val, $options);
             if (! $obj) {
                 return false;
             }
@@ -162,7 +175,7 @@ class Url
         array $options = [],
     ): bool {
         try {
-            $obj = static::defaultObject($val, $options);
+            $obj = static::_defaultObject($val, $options);
             if (! $obj) {
                 return false;
             }
@@ -182,7 +195,7 @@ class Url
         }
 
         try {
-            $obj = static::defaultObject($val, $options);
+            $obj = static::_defaultObject($val, $options);
             if (! $obj) {
                 return false;
             }
@@ -198,7 +211,7 @@ class Url
         array $options = [],
     ): ?string {
         try {
-            return static::defaultObject($val, $options)
+            return static::_defaultObject($val, $options)
                 ?->getHost();
         } catch (\Throwable) {
             return null;
@@ -210,7 +223,7 @@ class Url
         array $options = [],
     ): ?string {
         try {
-            return static::defaultObject($val, $options)
+            return static::_defaultObject($val, $options)
                 ?->getHostHuman();
         } catch (\Throwable) {
             return null;
@@ -222,7 +235,7 @@ class Url
         array $options = [],
     ): ?string {
         try {
-            return static::defaultObject($val, $options)
+            return static::_defaultObject($val, $options)
                 ?->getHost2level();
         } catch (\Throwable) {
             return null;

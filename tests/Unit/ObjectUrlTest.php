@@ -1,12 +1,51 @@
 <?php
 
 use One23\Helpers\Arr;
-use One23\Helpers\Exceptions\Url as Exception;
+use One23\Helpers\Exceptions\ObjectUrl as Exception;
 use One23\Helpers\ObjectUrl;
 use Tests\TestCase;
 
 class ObjectUrlTest extends TestCase
 {
+    public function test_binding()
+    {
+        $url = new ObjectUrl('https://example.com/path?a&b=&c=1#fragment');
+
+        $url->setPath('/%1%/%2%/c/%3%');
+        $url->setQuery('a1=%1%&a2=%2%&a3=%3%');
+        $url->setFragment('a-%1%-%2%-b');
+
+        $this->assertEquals(
+            'https://example.com/%251%25/%252%25/c/%253%25?a1=%251%25&a2=%252%25&a3=%253%25#a-%251%25-%252%25-b',
+            $url->toString()
+        );
+
+        $url = $url->binding([
+            '%1%' => 'т т',
+            '%2%' => '%1%',
+            '%3%' => ' h w ',
+        ]);
+
+        $this->assertEquals(
+            'https://example.com/%D1%82%20%D1%82/%251%25/c/%20h%20w%20?a1=%D1%82+%D1%82&a2=%251%25&a3=+h+w+#a-%D1%82%20%D1%82-%251%25-b',
+            $url->toString(),
+        );
+    }
+
+    public function test_clone()
+    {
+        $url = new ObjectUrl('https://www.example.com:8080/path?a&b=&c=1#fragment', [
+            'acceptPort' => true,
+        ]);
+
+        $cloneUrl = $url->clone();
+
+        $this->assertEquals(
+            $url->toString(),
+            $cloneUrl->toString()
+        );
+    }
+
     public function test_encode_decode(): void
     {
         $components = [
@@ -15,7 +54,7 @@ class ObjectUrlTest extends TestCase
             'pass' => 'а+б@в.г',
             'host' => 'яндекс.ru',
             'port' => 8080,
-            'fragment' => '#a+б:в@г д',
+            'fragment' => 'a+б:в@г д',
         ];
 
         $u = new ObjectUrl(
@@ -27,7 +66,7 @@ class ObjectUrlTest extends TestCase
         );
 
         $this->assertEquals(
-            'https://%D0%B0%2B%D0%B1%3A%D0%B2.%D0%B3:%D0%B0%2B%D0%B1%40%D0%B2.%D0%B3@xn--d1acpjx3f.ru:8080/#%23a%2B%D0%B1%3A%D0%B2%40%D0%B3%20%D0%B4',
+            'https://%D0%B0%2B%D0%B1%3A%D0%B2.%D0%B3:%D0%B0%2B%D0%B1%40%D0%B2.%D0%B3@xn--d1acpjx3f.ru:8080/#a%2B%D0%B1%3A%D0%B2%40%D0%B3%20%D0%B4',
             $u->toString()
         );
 
@@ -52,7 +91,7 @@ class ObjectUrlTest extends TestCase
         );
 
         $this->assertEquals(
-            $components['fragment'],
+            rawurlencode($components['fragment']),
             $url->getFragment()
         );
 
@@ -89,6 +128,7 @@ class ObjectUrlTest extends TestCase
                         ],
                     ],
                 ],
+                'query_string' => 'queryBlank=&queryNull[][]',
                 'fragment' => 'fragment',
             ]),
             $url->toArray()
@@ -527,6 +567,26 @@ class ObjectUrlTest extends TestCase
     {
         $url = new ObjectUrl('https://www.example.com/path?#fragment');
 
+        $this->assertEquals(
+            '/%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82/%D0%BC%D0%B8%D1%80',
+            $url->setPath('/%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82/%D0%BC%D0%B8%D1%80')->getPath()
+        );
+
+        $this->assertEquals(
+            '/hello/world',
+            $url->setPath('hello/world')->getPath()
+        );
+
+        $this->assertEquals(
+            '/hello/world/',
+            $url->setPath('hello/world/')->getPath()
+        );
+
+        $this->assertEquals(
+            '/%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82/%D0%BC%D0%B8%D1%80',
+            $url->setPath('привет/мир')->getPath()
+        );
+
         $url->setPath(null);
         $this->assertEquals(
             '/',
@@ -556,9 +616,17 @@ class ObjectUrlTest extends TestCase
     {
         $url = new ObjectUrl('https://www.example.com/path?#fragment');
 
+        $url->setQuery('x=z&y=w&z=1&a[]=1&a[]=2&b[a]=1&b[b]=2', true)
+            ->removeQuery(['a', 'b.a']);
+        $this->assertEquals(
+            'x=z&y=w&z=1&b[b]=2',
+            $url->getQueryString()
+        );
+
         //
 
-        $url->setQuery('a[]=1&a[]=2&b[a]=1&b[b]=2', true)
+        $url->setQuery('')
+            ->setQuery('a[]=1&a[]=2&b[a]=1&b[b]=2', true)
             ->removeQuery(['c', 'd']);
         $this->assertEquals(
             'a[]=1&a[]=2&b[a]=1&b[b]=2',
@@ -717,8 +785,20 @@ class ObjectUrlTest extends TestCase
 
     public function test_auth(): void
     {
-        $url = new ObjectUrl('https://www.example.com/path?#fragment');
+        $url = new ObjectUrl(
+            'https://user:%20123456%20@www.example.com/path?#fragment',
+            [
+                'acceptAuth' => null,
+            ],
+        );
+        $this->assertEquals(
+            ['user', ' 123456 '],
+            $url->getAuth()
+        );
 
+        //
+
+        $url = new ObjectUrl('https://www.example.com/path?#fragment');
         $this->assertNull(
             $url->getAuth()
         );

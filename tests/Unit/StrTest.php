@@ -6,6 +6,33 @@ use Tests\TestCase;
 
 class StrTest extends TestCase
 {
+    public function test_hasEntityCharters(): void
+    {
+        $this->assertTrue(
+            ! Str::hasEntityCharters('abc &a abc')
+        );
+
+        $this->assertTrue(
+            Str::hasEntityCharters('abc &30;abc ')
+        );
+
+        $this->assertTrue(
+            Str::hasEntityCharters('abc &#123;abc ')
+        );
+
+        $this->assertTrue(
+            Str::hasEntityCharters('abc &#x1a2;abc ')
+        );
+
+        $this->assertTrue(
+            ! Str::hasEntityCharters('abc &#x1g2;abc ')
+        );
+
+        $this->assertTrue(
+            Str::hasEntityCharters('abc &hellip; abc ')
+        );
+    }
+
     public function test_first(): void
     {
         $this->assertEquals(

@@ -6,6 +6,190 @@ use Tests\TestCase;
 
 class UrlTest extends TestCase
 {
+    public function test_uri()
+    {
+        $this->assertEquals(
+            '/',
+            Url::uri('')
+        );
+
+        $this->assertEquals(
+            '/abc',
+            Url::uri('abc')
+        );
+
+        $this->assertEquals(
+            '/abc',
+            Url::uri('/abc')
+        );
+
+        $this->assertEquals(
+            '/abc/def#fragment',
+            Url::uri('//test.ru/abc/def?#fragment')
+        );
+
+        $this->assertEquals(
+            '/abc#fragment',
+            Url::uri('http://test.ru/abc?#fragment')
+        );
+
+        $this->assertEquals(
+            '#',
+            Url::uri(null)
+        );
+
+        //
+
+        $this->assertEquals(
+            '/abc#fragment',
+            Url::uri('http://test.ru/abc?#fragment', ['baseHref' => '/assets/'])
+        );
+
+        $this->assertEquals(
+            '/abc#fragment',
+            Url::uri('//test.ru/abc?#fragment', ['baseHref' => '/assets/'])
+        );
+
+        $this->assertEquals(
+            '/abc#fragment',
+            Url::uri('/abc?#fragment', ['baseHref' => '/assets/'])
+        );
+
+        $this->assertEquals(
+            '/assets/abc#fragment',
+            Url::uri('abc?#fragment', ['baseHref' => '/assets/'])
+        );
+
+        //
+
+        $this->assertEquals(
+            '/abc#fragment',
+            Url::uri('http://test.ru/abc?#fragment', ['url' => 'http://test.ru/assets/'])
+        );
+
+        $this->assertEquals(
+            '/abc#fragment',
+            Url::uri('//test.ru/abc?#fragment', ['url' => 'http://test.ru/assets/'])
+        );
+
+        $this->assertEquals(
+            '/abc#fragment',
+            Url::uri('/abc?#fragment', ['url' => 'http://test.ru/assets/'])
+        );
+
+        $this->assertEquals(
+            '/assets/abc#fragment',
+            Url::uri('abc?#fragment', ['url' => 'http://test.ru/assets/'])
+        );
+    }
+
+    public function test_fromUri()
+    {
+        $this->assertEquals(
+            'https://localhost/',
+            Url::fromUri('')
+        );
+
+        $this->assertEquals(
+            'https://localhost/abc',
+            Url::fromUri('abc')->toString()
+        );
+
+        $this->assertEquals(
+            'https://localhost/abc',
+            Url::fromUri('/abc')->toString()
+        );
+
+        $this->assertEquals(
+            'https://test.ru/abc',
+            Url::fromUri('//test.ru/abc')->toString()
+        );
+
+        $this->assertEquals(
+            'http://test.ru/abc',
+            Url::fromUri('http://test.ru/abc')->toString()
+        );
+
+        //
+
+        $this->assertEquals(
+            'https://localhost/abc/',
+            Url::fromUri('', [
+                'url' => 'https://localhost/abc/?#fragment',
+            ])->toString()
+        );
+
+        $this->assertEquals(
+            'https://localhost/abc/abc',
+            Url::fromUri('abc', [
+                'url' => 'https://localhost/abc/?#fragment',
+            ])->toString()
+        );
+
+        $this->assertEquals(
+            'https://localhost/efd',
+            Url::fromUri('/efd', [
+                'url' => 'https://localhost/abc/?#fragment',
+            ])->toString()
+        );
+
+        $this->assertEquals(
+            'http://test.ru/abc',
+            Url::fromUri('http://test.ru/abc', [
+                'url' => 'https://localhost/abc/?#fragment',
+            ])->toString()
+        );
+
+        //
+
+        //
+
+        $this->assertEquals(
+            'http://abc.ru/abc/',
+            Url::fromUri('', [
+                'baseHref' => '/abc/',
+                'scheme' => 'http',
+                'host' => 'abc.ru',
+            ])->toString()
+        );
+
+        $this->assertEquals(
+            'http://abc.ru/abc/abc',
+            Url::fromUri('abc', [
+                'baseHref' => '/abc/',
+                'scheme' => 'http',
+                'host' => 'abc.ru',
+            ])->toString()
+        );
+
+        $this->assertEquals(
+            'http://abc.ru/efd',
+            Url::fromUri('/efd', [
+                'baseHref' => '/abc/',
+                'scheme' => 'http',
+                'host' => 'abc.ru',
+            ])->toString()
+        );
+
+        $this->assertEquals(
+            'http://test.ru/abc',
+            Url::fromUri('//test.ru/abc', [
+                'baseHref' => '/abc/',
+                'scheme' => 'http',
+                'host' => 'abc.ru',
+            ])->toString()
+        );
+
+        $this->assertEquals(
+            'https://test.ru/abc',
+            Url::fromUri('https://test.ru/abc', [
+                'baseHref' => '/abc/',
+                'scheme' => 'http',
+                'host' => 'abc.ru',
+            ])->toString()
+        );
+    }
+
     public function test_parse(): void
     {
         $this->assertTrue(

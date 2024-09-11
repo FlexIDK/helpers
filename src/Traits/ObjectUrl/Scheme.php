@@ -4,19 +4,14 @@ namespace One23\Helpers\Traits\ObjectUrl;
 
 use Illuminate\Support\Arr as IlluminateArr;
 use Illuminate\Support\Str as IlluminateStr;
-use One23\Helpers\Exceptions\Url as Exception;
+use One23\Helpers\Exceptions\ObjectUrl as Exception;
 
-/**
- * @method getOptions
- *
- * * @property array $components
- */
 trait Scheme
 {
     /**
      * @param  array{
-     *      defaultScheme: ?string,
-     *      onlyHttp: ?bool
+     *  defaultScheme: ?string,
+     *  onlyHttp: ?bool
      * } $options
      */
     protected function value2scheme(
@@ -24,6 +19,8 @@ trait Scheme
         ?array $options = null,
     ): string {
         $options = $this->getOptions($options);
+
+        //
 
         if (! $val) {
             if (! ($options['defaultScheme'] ?? null)) {
@@ -69,17 +66,21 @@ trait Scheme
         string $val,
         array $options = []
     ): static {
-        $this->components['scheme'] = $this->value2scheme(
-            $val,
-            $options,
+        $self = $this->self();
+        $self->setComponent(
+            'scheme',
+            $this->value2scheme(
+                $val,
+                $options
+            )
         );
 
-        return $this;
+        return $self;
     }
 
     public function getScheme(): string
     {
-        return $this->components['scheme'];
+        return $this->getComponent('scheme');
     }
 
     public function isHttp(): bool

@@ -3,19 +3,20 @@
 namespace One23\Helpers;
 
 use Illuminate\Contracts\Support\Arrayable;
-use Illuminate\Support\Arr as IlluminateArr;
-use One23\Helpers\Exceptions\Url as Exception;
+use One23\Helpers\Exceptions\ObjectUrl as Exception;
 
 class ObjectUrl implements \Stringable, Arrayable
 {
     use Traits\ObjectUrl\Auth;
+    use Traits\ObjectUrl\Binding;
+    use Traits\ObjectUrl\Components;
     use Traits\ObjectUrl\Fragment;
     use Traits\ObjectUrl\Host;
+    use Traits\ObjectUrl\Mutable;
     use Traits\ObjectUrl\Path;
     use Traits\ObjectUrl\Port;
+    use Traits\ObjectUrl\Query;
     use Traits\ObjectUrl\Scheme;
-
-    protected array $components;
 
     protected array $options;
 
@@ -51,15 +52,35 @@ class ObjectUrl implements \Stringable, Arrayable
                 $this->build($val)
             );
         } elseif ($val instanceof ObjectUrl) {
-            $this->components = $val->toArray();
+            $this->setComponent(
+                $val->getComponent()
+            );
         } else {
             throw new Exception('Invalid `value`', Exception::INVALID_VALUE);
         }
     }
 
+    /**
+     * @return array{
+     *      scheme: string,
+     *      host: string,
+     *      port: integer,
+     *      user: string,
+     *      pass: string,
+     *      path: string,
+     *      query: array,
+     *      query_string: string,
+     *      fragment: string,
+     * }
+     */
     public function toArray(): array
     {
-        return $this->components ?? [];
+        return [
+            ...($this->getComponent()),
+
+            'query' => $this->getQuery(),
+            'query_string' => $this->getQueryString(),
+        ];
     }
 
     public function toString(): string
@@ -150,53 +171,56 @@ class ObjectUrl implements \Stringable, Arrayable
 
         //
 
-        $components = parse_url($url);
-        if (empty($components)) {
+        $parseComponents = parse_url($url);
+        if (empty($parseComponents)) {
             throw new Exception('Invalid URL', Exception::INVALID_URL);
         }
 
-        $components['scheme'] = $this->value2scheme(
-            ($components['scheme'] ?? null),
+        $parseComponents['scheme'] = $this->value2scheme(
+            ($parseComponents['scheme'] ?? null),
             $options,
         );
 
-        $components = [
-            ...$components,
+        $parseComponents = [
+            ...$parseComponents,
             ...($this->value2auth(
-                ($components['user'] ?? null),
-                ($components['pass'] ?? null),
+                (($parseComponents['user'] ?? null)
+                    ? rawurldecode((string)$parseComponents['user'])
+                    : null),
+                (($parseComponents['pass'] ?? null)
+                    ? rawurldecode((string)$parseComponents['pass'])
+                    : null),
                 $options,
             ) ?: []),
         ];
 
-        $components['host'] = $this->value2host(
-            ($components['host'] ?? null),
+        $parseComponents['host'] = $this->value2host(
+            ($parseComponents['host'] ?? null),
             $options,
         );
 
-        $components['port'] = $this->value2port(
-            ($components['port'] ?? null),
+        $parseComponents['port'] = $this->value2port(
+            ($parseComponents['port'] ?? null),
             $options,
         );
 
-        $components['path'] = $this->value2path(
-            $components['path'] ?? null
+        $parseComponents['path'] = $this->value2path(
+            $parseComponents['path'] ?? null
         );
 
-        if (isset($components['query'])) {
-            $components['query'] = $this->setQuery(
-                $components['query'],
-                null
-            )->getQuery();
+        if (isset($parseComponents['query'])) {
+            $parseComponents['query'] = $this->query2dot(
+                $parseComponents['query']
+            );
         }
 
-        $components['fragment'] = $this->value2fragment(
-            $components['fragment'] ?? null
+        $parseComponents['fragment'] = $this->value2fragment(
+            $parseComponents['fragment'] ?? null
         );
 
         //
 
-        $this->components = $components;
+        $this->setComponent($parseComponents);
 
         return $this;
     }
@@ -214,8 +238,15 @@ class ObjectUrl implements \Stringable, Arrayable
         array $options = []
     ): string {
         $components = [
-            ...$this->toArray(),
+            ...$this->getComponent(),
+
             ...($components2replace ?: []),
+            ...(isset($components2replace['query'])
+                ? [
+                    'query' => $this->query2dot($components2replace['query']),
+                ]
+                : []
+            ),
         ];
 
         $components['scheme'] = $this->value2scheme(
@@ -256,177 +287,6 @@ class ObjectUrl implements \Stringable, Arrayable
             $this->getUri($components);
     }
 
-    // query
-
-    protected function queryValue(mixed $val): string
-    {
-        if (is_bool($val)) {
-            return '=' . ($val ? '1' : '0');
-        }
-
-        $val = Value::val($val);
-        if (is_null($val)) {
-            return '';
-        }
-
-        $val = Str::val($val, '', false);
-
-        return '=' . urlencode($val);
-    }
-
-    protected function queryKeyValueArray(array $val, string $key): array
-    {
-        $res = [];
-
-        $isList = array_is_list($val);
-        foreach ($val as $k => $v) {
-            if ($isList) {
-                $k = null;
-            }
-
-            $newKey = $key . '[' . ($k ? urlencode($k) : '') . ']';
-
-            if (is_array($v)) {
-                $arr = $this->queryKeyValueArray($v, $newKey);
-                array_walk(
-                    $arr,
-                    function($val) use (&$res) {
-                        $res[] = $val;
-                    }
-                );
-
-                continue;
-            }
-
-            $res[] = $newKey . $this->queryValue($v);
-        }
-
-        return $res;
-    }
-
-    protected function queryArray2queryString(array $query): string
-    {
-        $res = [];
-        foreach ($query as $key => $val) {
-            if (is_array($val)) {
-                $arr = $this->queryKeyValueArray($val, urlencode((string)$key));
-
-                array_walk(
-                    $arr,
-                    function($val) use (&$res) {
-                        $res[] = $val;
-                    }
-                );
-            } else {
-                $res[] = urlencode($key) . $this->queryValue($val);
-            }
-        }
-
-        return implode('&', $res);
-    }
-
-    protected function query2dotArray(array|string|null $qs = null): array
-    {
-        $res = [];
-        if (is_string($qs)) {
-            parse_str($qs, $arr);
-            $res = Arr::dot($arr);
-
-            $arr = explode('&', $qs);
-
-            array_walk(
-                $arr,
-                function($val) use (&$res) {
-                    if (! $val) {
-                        return;
-                    }
-
-                    if (! str_contains($val, '=')) {
-                        parse_str($val, $a);
-
-                        $r = array_key_first(Arr::dot($a));
-                        if ($r) {
-                            $res[$r] = null;
-                        }
-                    }
-                }
-            );
-        } elseif (is_array($qs)) {
-            $res = Arr::dot($qs);
-        }
-
-        return $res;
-    }
-
-    /**
-     * @param  bool|null  $append  null: replace, true: append, false: prepend
-     */
-    public function setQuery(
-        string|array|null $qs = null,
-        ?bool $append = null
-    ): static {
-        if (empty($qs)) {
-            $this->components['query'] = [];
-
-            return $this;
-        }
-
-        //
-
-        $queryBefore = $this->getQuery();
-
-        $res = $this->query2dotArray($qs);
-
-        //
-
-        if (is_null($append)) {
-            $this->components['query'] = Arr::undot($res);
-        } elseif ($append) {
-            $this->components['query'] = Arr::undot(
-                Arr::dotMerge(
-                    Arr::dot($queryBefore),
-                    $res
-                )
-            );
-        } else {
-            $this->components['query'] = Arr::undot(
-                Arr::dotMerge(
-                    $res,
-                    Arr::dot($queryBefore),
-                )
-            );
-        }
-
-        return $this;
-    }
-
-    public function getQuery(): array
-    {
-        return $this->components['query'] ?? [];
-    }
-
-    public function getQueryString(): string
-    {
-        return $this->queryArray2queryString(
-            $this->getQuery()
-        );
-    }
-
-    public function removeQuery(array|string $keys): static
-    {
-        $keys = IlluminateArr::wrap($keys);
-
-        $res = $this->getQuery();
-
-        foreach ($keys as $key) {
-            IlluminateArr::forget($res, $key);
-        }
-
-        $this->components['query'] = $res;
-
-        return $this;
-    }
-
     // url
 
     public function getUrlIdn(): string
@@ -444,13 +304,12 @@ class ObjectUrl implements \Stringable, Arrayable
         );
     }
 
-    /**
-     * @param  array{path: string|null, query: string|array, fragment: string|null}  $options
-     */
-    public function getUri(?array $components2replace = null): string
-    {
+    public function getUri(
+        ?array $components2replace = null,
+    ): string {
         $components = [
-            ...$this->toArray(),
+            ...$this->getComponent(),
+
             ...($components2replace ?: []),
         ];
 
@@ -458,18 +317,14 @@ class ObjectUrl implements \Stringable, Arrayable
             $components['path'] ?? null
         );
 
-        if (! empty($components['query'] ?? [])) {
-            if (is_string($components['query'])) {
-                $components['query'] = $this->query2dotArray($components['query']);
-            }
-
-            if (! is_array($components['query'])) {
-                throw new Exception('Invalid `query` type', Exception::INVALID_URL_QUERY);
-            }
-
-            $components['query'] = Arr::undot(
-                $this->query2dotArray($components['query'])
-            );
+        if (
+            ! empty($components['query'] ?? []) &&
+            (
+                is_string($components['query']) ||
+                is_array($components['query'])
+            )
+        ) {
+            $components['query'] = $this->query2dot($components['query']);
         }
 
         $components['fragment'] = $this->value2fragment(
@@ -478,13 +333,15 @@ class ObjectUrl implements \Stringable, Arrayable
 
         //
 
+        $fragment = $this->fragment2build($components);
+
         return
             $this->path2build($components) .
 
             (! empty($components['query'] ?? [])
-                ? '?' . $this->queryArray2queryString($components['query'])
+                ? '?' . $this->query2string($components['query'])
                 : '') .
 
-            $this->fragment2build($components);
+            ($fragment ? ('#' . $fragment) : '');
     }
 }

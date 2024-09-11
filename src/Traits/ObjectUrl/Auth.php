@@ -2,13 +2,8 @@
 
 namespace One23\Helpers\Traits\ObjectUrl;
 
-use One23\Helpers\Exceptions\Url as Exception;
+use One23\Helpers\Exceptions\ObjectUrl as Exception;
 
-/**
- * @method getOptions
- *
- * @property array $components
- */
 trait Auth
 {
     /**
@@ -43,18 +38,21 @@ trait Auth
         }
 
         return [
-            'user' => $user ? rawurldecode($user) : null,
-            'pass' => ($user && $pass ? rawurldecode($pass) : null),
+            'user' => $user ?: null,
+            'pass' => (($user && $pass) ? $pass : null),
         ];
     }
 
     public function getAuth(): ?array
     {
-        $user = $this->components['user'] ?? null;
-        $pass = $this->components['pass'] ?? null;
+        $user = $this->getComponent('user');
+        $pass = $this->getComponent('pass');
 
         if ($user) {
-            return [$user, $pass];
+            return [
+                (string)$user,
+                (string)$pass,
+            ];
         }
 
         return null;
@@ -70,21 +68,25 @@ trait Auth
         ?string $pass = null,
         array $options = [],
     ): static {
-        $options = $this->getOptions($options);
+        $auth = $this->value2auth($user, $pass, $options);
 
         //
 
-        $auth = $this->value2auth($user, $pass, $options);
+        $self = $this->self();
+        $self
+            ->setComponent('user', $auth['user'])
+            ->setComponent('pass', $auth['pass']);
 
-        $this->components['user'] = $auth['user'];
-        $this->components['pass'] = $auth['pass'];
-
-        return $this;
+        return $self;
     }
 
     public function getUser(): ?string
     {
-        return $this->components['user'] ?? null;
+        $user = $this->getComponent('user');
+
+        return $user
+            ? (string)$user
+            : null;
     }
 
     public function hasUser(): bool
@@ -98,7 +100,11 @@ trait Auth
             return null;
         }
 
-        return $this->components['pass'] ?? null;
+        $pass = $this->getComponent('pass');
+
+        return $pass
+            ? (string)$pass
+            : null;
     }
 
     public function hasPass(): bool
@@ -111,9 +117,9 @@ trait Auth
     ): string {
         return ($components['user'] ?? null)
             ? (
-                rawurlencode($components['user']) .
+                rawurlencode((string)$components['user']) .
                 (($components['pass'] ?? null)
-                    ? ':' . rawurlencode($components['pass'])
+                    ? ':' . rawurlencode((string)$components['pass'])
                     : '') .
                 '@'
             )

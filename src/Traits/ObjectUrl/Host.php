@@ -3,14 +3,9 @@
 namespace One23\Helpers\Traits\ObjectUrl;
 
 use Illuminate\Support\Str as IlluminateStr;
-use One23\Helpers\Exceptions\Url as Exception;
+use One23\Helpers\Exceptions\ObjectUrl as Exception;
 use One23\Helpers\Str;
 
-/**
- * @method getOptions
- *
- * @property array $components
- */
 trait Host
 {
     /**
@@ -130,21 +125,23 @@ trait Host
         string $host,
         array $options = [],
     ): static {
-        $options = $this->getOptions($options);
-
-        $this->components['host'] = $this->value2host(
-            $host,
-            $options,
+        $self = $this->self();
+        $self->setComponent(
+            'host',
+            $this->value2host(
+                $host,
+                $options,
+            )
         );
 
-        return $this;
+        return $self;
     }
 
     public function getHost(bool $human = false): string
     {
         return $human
             ? $this->getHostHuman()
-            : $this->components['host'];
+            : $this->getComponent('host');
     }
 
     public function getHostHuman(): string

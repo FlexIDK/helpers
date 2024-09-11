@@ -5,6 +5,34 @@ use Tests\TestCase;
 
 class ArrTest extends TestCase
 {
+    public function test_randomValues()
+    {
+        $this->assertNull(
+            Arr::randomValue([])
+        );
+
+        $this->assertEquals(
+            [],
+            Arr::randomValues([])
+        );
+
+        $this->assertCount(
+            2,
+            Arr::randomValues([1, 2, 3, 4, 5], 2)
+        );
+
+        $this->assertCount(
+            5,
+            Arr::randomValues([1, 2, 3, 4, 5], 10)
+        );
+
+        $arr = ['a', 'b', 'c', 'd', 'e'];
+        $val = Arr::randomValue($arr);
+
+        $this->assertNotFalse(array_search($val, $arr));
+        $this->assertFalse(array_search($val, ['x', 'y', 'z']));
+    }
+
     public function test_sum(): void
     {
         $this->assertEquals(

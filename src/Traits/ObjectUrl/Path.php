@@ -2,38 +2,69 @@
 
 namespace One23\Helpers\Traits\ObjectUrl;
 
-/**
- * @method getOptions
- *
- * * @property array $components
- */
 trait Path
 {
-    protected function value2path(?string $val = null): string
-    {
+    protected function value2path(
+        ?string $val = null,
+        array $options = [],
+    ): string {
+        if (! $val) {
+            return '/';
+        }
+
+        // detect encode && decode
+        if (preg_match('/%[0-9a-f]{2}/', $val)) {
+            $val = rawurldecode($val);
+        }
+
         // remover trailing slash
-        return preg_replace(
+        $path = preg_replace(
             '/\/+/', '/',
-            $val ?: '/'
+            $val
         );
+
+        if (! str_starts_with($path, '/')) {
+            $path = '/' . $path;
+        }
+
+        return $path;
     }
 
     public function setPath(?string $path = null): static
     {
-        $this->components['path'] = $this->value2path($path);
+        $self = $this->self();
+        $self->setComponent(
+            'path',
+            $this->value2path($path)
+        );
 
-        return $this;
+        return $self;
+    }
+
+    protected function encodePath(string $path): string
+    {
+        $parts = explode('/', $path);
+
+        $res = [];
+
+        foreach ($parts as $part) {
+            $res[] = rawurlencode($part);
+        }
+
+        return implode('/', $res);
     }
 
     public function getPath(): string
     {
-        return $this->components['path'] ?? '/';
+        return $this->path2build($this->getComponent());
     }
 
     protected function path2build(array $components): string
     {
         $path = $components['path'] ?? null;
 
-        return $path ?: '/';
+        return $this->encodePath(
+            $path ?: '/'
+        );
     }
 }

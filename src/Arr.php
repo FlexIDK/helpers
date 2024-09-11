@@ -12,6 +12,54 @@ class Arr
     use Traits\Arr\Sum;
 
     /**
+     * @return mixed[]
+     */
+    public static function randomValues(
+        array $array,
+        int $num = 1
+    ): array {
+        if (empty($array)) {
+            return [];
+        }
+
+        $cnt = count($array);
+        $num = Integer::get($num, 1, 1, $num);
+        if ($num > $cnt) {
+            $num = $cnt;
+        }
+
+        if ($cnt === $num) {
+            shuffle($array);
+
+            return array_values($array);
+        }
+
+        //
+
+        $keys = array_rand($array, $num);
+        $keys = IlluminateArr::wrap($keys);
+
+        $res = [];
+        foreach ($keys as $key) {
+            $res[] = $array[$key];
+        }
+
+        return $res;
+    }
+
+    public static function randomValue(
+        array $array,
+        mixed $default = null
+    ) {
+        $res = static::randomValues($array, 1);
+        if (! empty($res)) {
+            return $res[0];
+        }
+
+        return $default;
+    }
+
+    /**
      * @param  array{uniq: ?bool, type: ?string}  $options
      */
     public static function keyMap(

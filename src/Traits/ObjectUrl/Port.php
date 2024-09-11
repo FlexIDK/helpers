@@ -2,14 +2,9 @@
 
 namespace One23\Helpers\Traits\ObjectUrl;
 
-use One23\Helpers\Exceptions\Url as Exception;
+use One23\Helpers\Exceptions\ObjectUrl as Exception;
 use One23\Helpers\Number;
 
-/**
- * @method getOptions
- *
- * @property array $components
- */
 trait Port
 {
     /**
@@ -22,6 +17,8 @@ trait Port
         array $options = [],
     ): ?int {
         $options = $this->getOptions($options);
+
+        //
 
         if (is_bool($options['acceptPort'] ?? null)) {
             if (
@@ -53,7 +50,11 @@ trait Port
 
     public function getPort(): ?int
     {
-        return $this->components['port'] ?? null;
+        $port = $this->getComponent('port');
+
+        return $port
+            ? (int)$port
+            : null;
     }
 
     public function hasPort(): bool
@@ -65,9 +66,13 @@ trait Port
         ?int $val = null,
         array $options = [],
     ): static {
-        $this->components['port'] = $this->value2port($val, $options);
+        $self = $this->self();
+        $self->setComponent(
+            'port',
+            $this->value2port($val, $options)
+        );
 
-        return $this;
+        return $self;
     }
 
     protected function port2build(array $components): string
