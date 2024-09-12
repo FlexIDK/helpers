@@ -35,7 +35,7 @@ trait Query
                 $k = null;
             }
 
-            $newKey = $key . '[' . ($k ? urlencode($k) : '') . ']';
+            $newKey = $key . '[' . (! is_null($k) ? urlencode($k) : '') . ']';
 
             if (is_array($v)) {
                 $arr = $this->queryArray($v, $newKey);
@@ -186,15 +186,29 @@ trait Query
         );
     }
 
-    public function ksortQuery(): static
-    {
+    /**
+     * @param  string  $direction  `asc` or `desc`
+     */
+    public function sortQueryKeys(
+        string $direction = 'asc'
+    ): static {
+        $direction = match ($direction) {
+            'asc', 'desc' => $direction,
+            default => 'asc',
+        };
+
         $q = $this->getComponent('query');
-        ksort($q);
+
+        if ($direction === 'asc') {
+            ksort($q, SORT_STRING);
+        } else {
+            krsort($q, SORT_STRING);
+        }
 
         //
 
         $self = $this->self();
-        $self->setComponent($q);
+        $self->setComponent('query', $q);
 
         return $self;
     }
@@ -206,10 +220,7 @@ trait Query
         );
     }
 
-    /**
-     * @param  string[]|string  $keys
-     */
-    public function removeQuery(array|string $keys): static
+    public function removeQueryKeys(array|string $keys): static
     {
         $query = $this->getComponent('query');
         if (empty($query)) {
@@ -243,5 +254,21 @@ trait Query
         $self->setComponent('query', $query);
 
         return $self;
+    }
+
+    /**
+     * @deprecated
+     * @param  string[]|string|null  $keys
+     */
+    public function removeQuery(array|string|null $keys = null): static
+    {
+        if (is_null($keys)) {
+            $self = $this->self();
+            $self->setComponent('query', []);
+
+            return $self;
+        }
+
+        return $this->removeQueryKeys($keys);
     }
 }

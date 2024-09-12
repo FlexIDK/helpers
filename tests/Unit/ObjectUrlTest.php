@@ -7,6 +7,22 @@ use Tests\TestCase;
 
 class ObjectUrlTest extends TestCase
 {
+    public function test_sortQueryKeys()
+    {
+        $url = (new ObjectUrl('https://example.com/path?b=&a&c=1&e=2&f[1]=2&f[0]=1&d=abc#fragment'))
+            ->setMutable(false);
+
+        $this->assertEquals(
+            'a&b=&c=1&d=abc&e=2&f[]=1&f[]=2',
+            $url->sortQueryKeys('asc')->getQueryString()
+        );
+
+        $this->assertEquals(
+            'f[1]=2&f[0]=1&e=2&d=abc&c=1&b=&a',
+            $url->sortQueryKeys('desc')->getQueryString()
+        );
+    }
+
     public function test_binding()
     {
         $url = new ObjectUrl('https://example.com/path?a&b=&c=1#fragment');
@@ -614,10 +630,23 @@ class ObjectUrlTest extends TestCase
 
     public function test_query(): void
     {
+        $url = (new ObjectUrl('https://www.example.com/path?#fragment'))
+            ->setMutable(false);
+
+        $this->assertEquals(
+            'a=1&b&c=',
+            $url->setQuery('a=1&b&c=')->getQueryString()
+        );
+
+        $this->assertEquals(
+            '',
+            $url->setQuery('a=1&b&c=')->removeQuery()->getQueryString()
+        );
+
         $url = new ObjectUrl('https://www.example.com/path?#fragment');
 
         $url->setQuery('x=z&y=w&z=1&a[]=1&a[]=2&b[a]=1&b[b]=2', true)
-            ->removeQuery(['a', 'b.a']);
+            ->removeQueryKeys(['a', 'b.a']);
         $this->assertEquals(
             'x=z&y=w&z=1&b[b]=2',
             $url->getQueryString()
@@ -627,7 +656,7 @@ class ObjectUrlTest extends TestCase
 
         $url->setQuery('')
             ->setQuery('a[]=1&a[]=2&b[a]=1&b[b]=2', true)
-            ->removeQuery(['c', 'd']);
+            ->removeQueryKeys(['c', 'd']);
         $this->assertEquals(
             'a[]=1&a[]=2&b[a]=1&b[b]=2',
             $url->getQueryString()
@@ -654,27 +683,27 @@ class ObjectUrlTest extends TestCase
         );
 
         $url->setQuery('x=z&y=w&z=1', true)
-            ->removeQuery('a');
+            ->removeQueryKeys('a');
         $this->assertEquals(
             'c=d&e=f&x=z&y=w&z=1',
             $url->getQueryString()
         );
 
-        $url->removeQuery(['b', 'c.1']);
+        $url->removeQueryKeys(['b', 'c.1']);
         $this->assertEquals(
             'c=d&e=f&x=z&y=w&z=1',
             $url->getQueryString()
         );
 
         $url->setQuery('a[]=1&a[]=2&b[a]=1&b[b]=2', true)
-            ->removeQuery(['c', 'e']);
+            ->removeQueryKeys(['c', 'e']);
         $this->assertEquals(
             'x=z&y=w&z=1&a[]=1&a[]=2&b[a]=1&b[b]=2',
             $url->getQueryString()
         );
 
         $url->setQuery('a[]=1&a[]=2&b[a]=1&b[b]=2', true)
-            ->removeQuery(['a', 'b.a']);
+            ->removeQueryKeys(['a', 'b.a']);
         $this->assertEquals(
             'x=z&y=w&z=1&b[b]=2',
             $url->getQueryString()
