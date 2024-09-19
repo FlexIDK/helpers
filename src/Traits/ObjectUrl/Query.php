@@ -175,6 +175,21 @@ trait Query
         return $self;
     }
 
+    public function append2Query(string|array $query): static
+    {
+        return $this->setQuery($query, true);
+    }
+
+    public function prepend2Query(string|array $query): static
+    {
+        return $this->setQuery($query, false);
+    }
+
+    public function replaceQuery(string|array $query): static
+    {
+        return $this->setQuery($query, null);
+    }
+
     public function getQuery(?string $key = null, $default = null): mixed
     {
         if (! is_null($key)) {
@@ -258,6 +273,7 @@ trait Query
 
     /**
      * @deprecated
+     *
      * @param  string[]|string|null  $keys
      */
     public function removeQuery(array|string|null $keys = null): static

@@ -9,6 +9,8 @@ use One23\Helpers\Exceptions\ObjectUrl as Exception;
 trait Scheme
 {
     /**
+     * deprecated defaultScheme
+     *
      * @param  array{
      *  defaultScheme: ?string,
      *  onlyHttp: ?bool
@@ -22,11 +24,13 @@ trait Scheme
 
         //
 
+        // @deprecated
         if (! $val) {
             if (! ($options['defaultScheme'] ?? null)) {
                 throw new Exception('Undefined scheme', Exception::UNDEFINED_SCHEME);
             }
 
+            /** @deprecated */
             $val = $options['defaultScheme'];
         }
 
@@ -57,6 +61,8 @@ trait Scheme
     }
 
     /**
+     * deprecated defaultScheme
+     *
      * @param  array{
      *      defaultScheme: ?string,
      *      onlyHttp: ?bool

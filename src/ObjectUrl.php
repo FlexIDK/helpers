@@ -21,6 +21,8 @@ class ObjectUrl implements \Stringable, Arrayable
     protected array $options;
 
     /**
+     * deprecated defaultScheme
+     *
      * @param array{
      *     defaultScheme: ?string,
      *     allowWildcard: ?bool,
@@ -96,6 +98,7 @@ class ObjectUrl implements \Stringable, Arrayable
     protected function getOptions(array $options = []): array
     {
         $allowedOptions = [
+            // @deprecated
             'defaultScheme' => [
                 'nullable' => true,
                 'type' => 'string',

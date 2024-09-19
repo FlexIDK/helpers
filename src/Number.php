@@ -29,21 +29,64 @@ class Number
             return null;
         }
 
-        $val = preg_replace("@\s+@", '', $val);
-        $val = str_replace(',', '.', $val);
+        //
 
-        if (
-            $val === ''
-            || ! is_numeric($val)
-        ) {
+        return static::str2val($val);
+    }
+
+    protected static function str2val(string $val): int|float|null
+    {
+        // number charset
+        if (! preg_match('/[0-9"\',.`\s-]+/', $val, $match)) {
             return null;
         }
 
-        if (! str_contains($val, '.')) {
-            return (int)$val;
+        $val = $match[0];
+        $val = str_replace(',', '.', $val);
+
+        //
+
+        [$int, $dec] = explode('.', $val, 2) + ['', ''];
+
+        // int
+
+        preg_match('/(-)?([0-9"\-`\'\s]+)/', $int, $match);
+        $negative = (bool)($match[1] ?? false);
+
+        if (str_contains(($match[2] ?? ''), '-')) {
+            preg_match('/[0-9"`\'\s]+/', $match[2], $match);
+            $int = $match[0] ?? '';
+            $dec = '';
+        } else {
+            $int = $match[2] ?? '';
         }
 
-        return (float)$val;
+        preg_match_all('/[0-9]+/', $int, $match);
+        $int = implode('', $match[0]);
+
+        // dec
+
+        if (preg_match('/[0-9"\'\s]+/', $dec, $match)) {
+            preg_match_all('/[0-9]+/', $match[0], $match);
+            $dec = implode('', $match[0]);
+        } else {
+            $dec = '';
+        }
+
+        if ($int === '' && $dec === '') {
+            return null;
+        }
+
+        $int = (int)$int ?: 0;
+        $dec = (float)('0.' . ($dec ?: 0));
+
+        if ($dec) {
+            $val = ($int + $dec) * ($negative ? -1 : 1);
+        } else {
+            $val = ($int) * ($negative ? -1 : 1);
+        }
+
+        return $val;
     }
 
     public static function int(

@@ -18,6 +18,8 @@ class Url
     ];
 
     /**
+     * deprecated defaultScheme
+     *
      * @param array{
      *      defaultScheme: ?string,
      *      allowWildcard: ?bool,
@@ -64,6 +66,8 @@ class Url
     }
 
     /**
+     * deprecated defaultScheme
+     *
      * @param array{
      *      defaultScheme: ?string,
      *      allowWildcard: ?bool,
@@ -99,6 +103,8 @@ class Url
     }
 
     /**
+     * deprecated defaultScheme
+     *
      * @param array{
      *      defaultScheme: ?string,
      *      allowWildcard: ?bool,

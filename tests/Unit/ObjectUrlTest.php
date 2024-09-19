@@ -220,6 +220,7 @@ class ObjectUrlTest extends TestCase
             $url->setScheme('http', ['onlyHttp' => false])->getScheme();
         }, Exception::class);
 
+        // @deprecated
         $this->assertException(function() {
             new ObjectUrl('/www.example.com:123/path?#fragment', [
                 'defaultScheme' => 'http',
@@ -232,6 +233,7 @@ class ObjectUrlTest extends TestCase
             ]);
         }, Exception::class);
 
+        // @deprecated
         $this->assertEquals(
             'https://www.example.com/path#fragment',
             (new ObjectUrl(
@@ -249,6 +251,7 @@ class ObjectUrlTest extends TestCase
                 [
                     'defaultScheme' => 'ftp',
                     'onlyHttp' => null,
+
                 ]
             ))->toString()
         );

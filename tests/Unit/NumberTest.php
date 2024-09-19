@@ -7,21 +7,44 @@ class NumberTest extends TestCase
 {
     public function test_val(): void
     {
-        $this->assertTrue(
-            Number::val(true) === 1
-        );
-
-        $this->assertTrue(
-            Number::val(false) === 0
-        );
-
-        $this->assertTrue(
-            is_null(Number::val([]))
-        );
-
-        $this->assertTrue(
-            is_null(Number::val(new \stdClass))
-        );
+        foreach ([
+            ['-123.123', -123.123],
+            ['-123-234.123', -123],
+            ['-123-234', -123],
+            [
+                '- 1\'12"12`14 234,45 3,44',
+                -1121214234.453,
+            ],
+            ['abc', null],
+            [true, 1],
+            [false, 0],
+            [[], null],
+            [new \stdClass, null],
+            ['123', 123],
+            ['123.', 123],
+            ['', null],
+            ['123.123', 123.123],
+            ['0123.123', 123.123],
+            [function() {
+                return '-123.123';
+            }, -123.123],
+            [null, null],
+            ['+0123,123', 123.123],
+            [',124', 0.124],
+            ['.1 2 4', 0.124],
+            ['abc 123.23 sfd', 123.23],
+            [' 1 234.45 123', 1234.45123],
+            [' 1 234.45.123', 1234.45],
+            [' 1 234.4 5,1 2 3', 1234.45],
+            [' 1"234\'123`123,45 ', 1234123123.45],
+            ['abc 123 asd .23 sfd', 123],
+            ['abc 1`2"3 asd .23 sfd', 123],
+        ] as $item) {
+            $this->assertEquals(
+                $item[1],
+                Number::val($item[0]),
+            );
+        }
 
         $this->assertTrue(
             is_int(Number::val(123))
@@ -33,47 +56,6 @@ class NumberTest extends TestCase
 
         $this->assertTrue(
             is_float(Number::val(123.12))
-        );
-
-        $this->assertEquals(
-            123,
-            Number::val(123)
-        );
-
-        $this->assertEquals(
-            null,
-            Number::val('abc')
-        );
-
-        $this->assertEquals(
-            123.123,
-            Number::val('0123.123')
-        );
-
-        $this->assertEquals(
-            123.123,
-            Number::val(function() {
-                return 123.123;
-            })
-        );
-
-        $this->assertEquals(
-            123.123,
-            Number::val(function() {
-                return '+0123,123';
-            })
-        );
-
-        $this->assertEquals(
-            -123.123,
-            Number::val(function() {
-                return '-0123,123';
-            })
-        );
-
-        $this->assertEquals(
-            null,
-            Number::val(null)
         );
     }
 
