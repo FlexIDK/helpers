@@ -290,6 +290,11 @@ class NumberTest extends TestCase
     public function test_min(): void
     {
         $this->assertEquals(
+            18,
+            Number::min(18, 18)
+        );
+
+        $this->assertEquals(
             1,
             Number::min(1, 2, 3)
         );
@@ -318,6 +323,11 @@ class NumberTest extends TestCase
     public function test_max(): void
     {
         $this->assertEquals(
+            3.3,
+            Number::min(3.3, 3.3)
+        );
+
+        $this->assertEquals(
             3.33,
             Number::max(1, 2, 3.33)
         );
@@ -340,6 +350,29 @@ class NumberTest extends TestCase
         $this->assertEquals(
             null,
             Number::max('a', null, 'abc')
+        );
+    }
+
+    public function test_minMax(): void
+    {
+        $this->assertEquals(
+            [18, 18],
+            Number::minMax(18, 18)
+        );
+
+        $this->assertEquals(
+            [18, 18],
+            Number::minMax('a', 18, 'b', null)
+        );
+
+        $this->assertEquals(
+            [1, 4],
+            Number::minMax(1, 2, 4, 3)
+        );
+
+        $this->assertEquals(
+            null,
+            Number::minMax('a', 'b')
         );
     }
 }

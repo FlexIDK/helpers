@@ -132,6 +132,10 @@ Integer::max(1, 2, 3, 4); // 4
 Integer::max(3, 4, 2, 1); // 4
 Integer::max(1, 'a', 2, 'b', 3, 'c'); // 3
 
+// minMax
+
+Integer::minMax(1, 'a', 2, 'b', 3, 'c'); // [1, 3]
+
 ```
 
 - 

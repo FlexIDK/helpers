@@ -292,4 +292,12 @@ class IntegerTest extends TestCase
             Integer::max(...[2, 3, 4, 1])
         );
     }
+
+    public function test_minMax()
+    {
+        $this->assertEquals(
+            [3, 10],
+            Integer::minMax(...[4, 6, 3, 3, 10, 8, 7, 9])
+        );
+    }
 }
