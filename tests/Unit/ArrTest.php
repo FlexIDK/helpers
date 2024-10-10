@@ -5,6 +5,34 @@ use Tests\TestCase;
 
 class ArrTest extends TestCase
 {
+    public function test_firstByKeys()
+    {
+        $this->assertEquals(
+            2,
+            Arr::firstByKeys(['a' => null, 'b' => 2], ['a', 'b'], skipEmpty: true)
+        );
+
+        $this->assertEquals(
+            1,
+            Arr::firstByKeys(['a' => 1, 'b' => 2], ['a'])
+        );
+
+        $this->assertEquals(
+            null,
+            Arr::firstByKeys(['a' => null, 'b' => 2], ['a', 'b'], skipEmpty: false)
+        );
+
+        $this->assertEquals(
+            null,
+            Arr::firstByKeys(['a' => null, 'b' => 2], ['c', 'd'])
+        );
+
+        $this->assertEquals(
+            2,
+            Arr::firstByKeys(['a' => null, 'b' => 4, 'c' => ['a' => 1, 'b' => 2, 'c' => 3]], ['c.b', 'd.a', 'a.0', 'b'])
+        );
+    }
+
     public function test_randomValues()
     {
         $this->assertNull(

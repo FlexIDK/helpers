@@ -1,6 +1,7 @@
 {
     "preset": "laravel",
     "rules": {
+        "line_ending": false,
         "combine_consecutive_issets": true,
         "concat_space": {
             "spacing": "one"
