@@ -9,6 +9,24 @@ class ObjectUrlTest extends TestCase
 {
     public function test_encode_chars()
     {
+        $url = (new ObjectUrl('https://example.com/rs%253afit'));
+        $url->setMutable(true);
+        $url->setPathCharsDontEncode(['@', ':']);
+
+        $this->assertEquals(
+            'https://example.com/rs:fit',
+            $url->toString()
+        );
+
+        $url->setPathCharsDontEncode([]);
+
+        $this->assertEquals(
+            'https://example.com/rs%3Afit',
+            $url->toString()
+        );
+
+        //
+
         $url = (new ObjectUrl('https://example.com/@abc:1'))
             ->setMutable(true);
 

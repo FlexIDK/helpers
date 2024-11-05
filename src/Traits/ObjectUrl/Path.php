@@ -12,17 +12,23 @@ trait Path
             return '/';
         }
 
-        // detect encode && decode
-        if (preg_match('/%[0-9a-f]{2}/', $val)) {
-            $val = rawurldecode($val);
-        }
-
-        // remover trailing slash
-        $path = preg_replace(
+        // remove trailing slash
+        $val = preg_replace(
             '/\/+/', '/',
             $val
         );
 
+        //
+        $parts = explode('/', $val);
+        foreach ($parts as &$part) {
+            // detect encode && decode
+            if (preg_match('/%[0-9a-f]{2}/i', $part)) {
+                $part = rawurldecode($part);
+            }
+        }
+
+        //
+        $path = implode('/', $parts);
         if (! str_starts_with($path, '/')) {
             $path = '/' . $path;
         }
@@ -78,8 +84,18 @@ trait Path
     /**
      * @param  string[]  $chars
      */
-    public function setPathCharsDontEncode(array $chars): static
+    public function setPathCharsDontEncode(?array $chars = null): static
     {
+        $self = $this->self();
+
+        if (empty($chars)) {
+            $self->pathCharsDontEncode = [];
+
+            return $self;
+        }
+
+        //
+
         $res = [];
         foreach ($chars as $char) {
             if (mb_strlen($char) !== 1) {
@@ -92,7 +108,6 @@ trait Path
             }
         }
 
-        $self = $this->self();
         $self->pathCharsDontEncode = $res;
 
         return $self;
