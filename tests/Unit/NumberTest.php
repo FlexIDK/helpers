@@ -168,6 +168,11 @@ class NumberTest extends TestCase
     public function test_money(): void
     {
         $this->assertEquals(
+            (string)5.32,
+            (string)(Number::money((12905 / 242419), 4) * 100)
+        );
+
+        $this->assertEquals(
             123,
             Number::money(123.123, 0)
         );

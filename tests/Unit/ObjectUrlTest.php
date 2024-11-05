@@ -7,6 +7,24 @@ use Tests\TestCase;
 
 class ObjectUrlTest extends TestCase
 {
+    public function test_encode_chars()
+    {
+        $url = (new ObjectUrl('https://example.com/@abc:1'))
+            ->setMutable(true);
+
+        $this->assertEquals(
+            'https://example.com/%40abc%3A1',
+            $url->toString()
+        );
+
+        $url->setPathCharsDontEncode(['@', ':']);
+
+        $this->assertEquals(
+            'https://example.com/@abc:1',
+            $url->toString()
+        );
+    }
+
     public function test_sortQueryKeys()
     {
         $url = (new ObjectUrl('https://example.com/path?b=&a&c=1&e=2&f[1]=2&f[0]=1&d=abc#fragment'))

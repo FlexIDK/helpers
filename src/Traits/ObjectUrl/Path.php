@@ -48,7 +48,12 @@ trait Path
         $res = [];
 
         foreach ($parts as $part) {
-            $res[] = rawurlencode($part);
+            $r = rawurlencode($part);
+            if (! empty($this->pathCharsDontEncode)) {
+                $r = str_replace(array_keys($this->pathCharsDontEncode), array_values($this->pathCharsDontEncode), $r);
+            }
+
+            $res[] = $r;
         }
 
         return implode('/', $res);
@@ -66,5 +71,30 @@ trait Path
         return $this->encodePath(
             $path ?: '/'
         );
+    }
+
+    protected array $pathCharsDontEncode = [];
+
+    /**
+     * @param  string[]  $chars
+     */
+    public function setPathCharsDontEncode(array $chars): static
+    {
+        $res = [];
+        foreach ($chars as $char) {
+            if (mb_strlen($char) !== 1) {
+                continue;
+            }
+
+            $enc = rawurlencode($char);
+            if ($enc !== $char) {
+                $res[$enc] = $char;
+            }
+        }
+
+        $self = $this->self();
+        $self->pathCharsDontEncode = $res;
+
+        return $self;
     }
 }

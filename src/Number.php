@@ -119,8 +119,9 @@ class Number
         }
 
         $pow = pow(10, $number);
+        $int = (int)floor($float * $pow);
 
-        return floor($float * $pow) / $pow;
+        return $int / $pow;
     }
 
     public static function get($val = null, float|int|null $default = null, float|int|null $min = null, float|int|null $max = null): float|int|null
