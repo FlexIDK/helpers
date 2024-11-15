@@ -7,18 +7,49 @@ use Tests\TestCase;
 
 class ObjectUrlTest extends TestCase
 {
+    public function test_skip_encode()
+    {
+        $url = (new ObjectUrl('https://example.com/rs%253afit'));
+        $url->setMutable(true);
+
+        $url->setOptions([
+            'pathEncode' => false,
+        ]);
+
+        $this->assertEquals(
+            'https://example.com/rs%253afit',
+            $url->toString()
+        );
+
+        //
+
+        $url->setPath('/rs:fit');
+
+        $this->assertEquals(
+            'https://example.com/rs:fit',
+            $url->toString()
+        );
+    }
+
     public function test_encode_chars()
     {
         $url = (new ObjectUrl('https://example.com/rs%253afit'));
         $url->setMutable(true);
-        $url->setPathCharsDontEncode(['@', ':']);
+
+        $url->setOptions([
+            'pathEncodeSkip' => [
+                '@', ':',
+            ],
+        ]);
 
         $this->assertEquals(
             'https://example.com/rs:fit',
             $url->toString()
         );
 
-        $url->setPathCharsDontEncode([]);
+        $url->setOptions([
+            'pathEncodeSkip' => [],
+        ]);
 
         $this->assertEquals(
             'https://example.com/rs%3Afit',
@@ -35,7 +66,11 @@ class ObjectUrlTest extends TestCase
             $url->toString()
         );
 
-        $url->setPathCharsDontEncode(['@', ':']);
+        $url->setOptions([
+            'pathEncodeSkip' => [
+                '@', ':',
+            ],
+        ]);
 
         $this->assertEquals(
             'https://example.com/@abc:1',

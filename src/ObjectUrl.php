@@ -32,14 +32,20 @@ class ObjectUrl implements \Stringable, Arrayable
      *     maxHostLength: int,
      *     acceptPort: ?bool,
      *     acceptIp: ?bool,
-     *     acceptAuth: ?bool
-     * } $options
+     *     acceptAuth: ?bool,
+     *     pathEncode: bool,
+     *     pathEncodeSkip: string[],
+     * }|null $options
      */
     public function __construct(
         string|array|ObjectUrl|null $val = null,
-        array $options = [],
+        ?array $options = null,
     ) {
-        $this->options = $this->getOptions($options);
+        $this->options = $this->getOptions(
+            empty($options)
+                ? []
+                : $options
+        );
 
         //
 
@@ -57,6 +63,9 @@ class ObjectUrl implements \Stringable, Arrayable
             $this->setComponent(
                 $val->getComponent()
             );
+            if (is_null($options)) {
+                $this->options = $val->getOptions();
+            }
         } else {
             throw new Exception('Invalid `value`', Exception::INVALID_VALUE);
         }
@@ -95,9 +104,9 @@ class ObjectUrl implements \Stringable, Arrayable
         return $this->toString();
     }
 
-    protected function getOptions(array $options = []): array
+    protected function allowedOption(): array
     {
-        $allowedOptions = [
+        return [
             // @deprecated
             'defaultScheme' => [
                 'nullable' => true,
@@ -155,14 +164,47 @@ class ObjectUrl implements \Stringable, Arrayable
                 'type' => 'bool',
                 'default' => false,
             ],
+            'pathEncode' => [
+                'nullable' => false,
+                'type' => 'bool',
+                'default' => true,
+            ],
+            'pathEncodeSkip' => [
+                'nullable' => false,
+                'type' => 'array',
+                'default' => [],
+            ],
         ];
+    }
 
+    public function getOptions(array $options = []): array
+    {
         return
             [
                 ...($this->options ?? []),
-                ...Options::all($options, $allowedOptions),
+                ...Options::all(
+                    $options,
+                    $this->allowedOption(),
+                ),
             ] +
-            Options::default($allowedOptions);
+            Options::default(
+                $this->allowedOption(),
+            );
+    }
+
+    public function setOptions(array $options): static
+    {
+        $self = $this->self();
+
+        $this->options = [
+            ...($this->options ?? []),
+            ...Options::all(
+                $options,
+                $this->allowedOption(),
+            ),
+        ];
+
+        return $self;
     }
 
     //
@@ -208,7 +250,8 @@ class ObjectUrl implements \Stringable, Arrayable
         );
 
         $parseComponents['path'] = $this->value2path(
-            $parseComponents['path'] ?? null
+            $parseComponents['path'] ?? null,
+            $options,
         );
 
         if (isset($parseComponents['query'])) {
@@ -310,6 +353,10 @@ class ObjectUrl implements \Stringable, Arrayable
     public function getUri(
         ?array $components2replace = null,
     ): string {
+        $options = $this->getOptions();
+
+        //
+
         $components = [
             ...$this->getComponent(),
 
@@ -317,7 +364,8 @@ class ObjectUrl implements \Stringable, Arrayable
         ];
 
         $components['path'] = $this->value2path(
-            $components['path'] ?? null
+            $components['path'] ?? null,
+            $options,
         );
 
         if (

@@ -29,7 +29,9 @@ class Url
      *      maxHostLength: int,
      *      acceptPort: ?bool,
      *      acceptIp: ?bool,
-     *      acceptAuth: ?bool
+     *      acceptAuth: ?bool,
+     *      pathEncode: bool,
+     *      pathEncodeSkip: string[],
      * } $options
      * @return null|array{
      *      scheme: string,
@@ -77,7 +79,9 @@ class Url
      *      maxHostLength: int,
      *      acceptPort: ?bool,
      *      acceptIp: ?bool,
-     *      acceptAuth: ?bool
+     *      acceptAuth: ?bool,
+     *      pathEncode: bool,
+     *      pathEncodeSkip: string[],
      * } $options
      */
     public static function build(
@@ -114,7 +118,9 @@ class Url
      *      maxHostLength: int,
      *      acceptPort: ?bool,
      *      acceptIp: ?bool,
-     *      acceptAuth: ?bool
+     *      acceptAuth: ?bool,
+     *      pathEncode: bool,
+     *      pathEncodeSkip: string[],
      * } $options
      */
     public static function object(
