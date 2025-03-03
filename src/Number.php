@@ -111,17 +111,32 @@ class Number
             : null;
     }
 
-    public static function money(mixed $val = null, int $number = 2): float|int|null
+    /**
+     * @deprecated
+     * @see Number::round
+     */
+    public static function money(mixed $amount = null, int $decimals = 2): float|int|null
     {
-        $float = static::get($val, null, 0);
-        if (! $float) {
-            return 0;
+        return static::round($amount, $decimals);
+    }
+
+    public static function round(
+        mixed $number,
+        int $decimals = 2
+    ) {
+        $val = static::float($number, 0, 0) ?: 0;
+
+        $val = (string)$val;
+        if (preg_match('/^((\d+)(\.(\d+))?)E-(\d+)$/ui', $val, $match)) {
+            $val = '0.' . str_repeat('0', ($match[5] - 1)) . $match[2] . $match[4];
         }
 
-        $pow = pow(10, $number);
-        $int = (int)floor($float * $pow);
+        $res = bcround((string)$val, $decimals);
+        if (strpos($res, '.') === false) {
+            return (int)$res;
+        }
 
-        return $int / $pow;
+        return (float)$res;
     }
 
     public static function get($val = null, float|int|null $default = null, float|int|null $min = null, float|int|null $max = null): float|int|null

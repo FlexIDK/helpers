@@ -2,7 +2,6 @@
 
 namespace One23\Helpers;
 
-use Egulias\EmailValidator;
 use One23\Helpers\Exceptions\Str as Exception;
 
 class Str
@@ -115,42 +114,12 @@ class Str
 
     public static function email(mixed $val): ?string
     {
-        $str = static::trim($val);
-        if (! $str) {
-            return null;
-        }
-
-        $str = mb_convert_case($str, MB_CASE_LOWER, 'UTF-8');
-
-        // qs is not supported
-        if (str_contains($str, '?')) {
-            return null;
-        }
-
-        // check domain
-        $domain = explode('@', $str, 2)[1] ?? null;
-        if (
-            ! $domain ||
-            ! str_contains($domain, '.')
-        ) {
-            return null;
-        }
-
-        // check email
-        $validator = new EmailValidator\EmailValidator;
-        $res = $validator->isValid(
-            $str,
-            new EmailValidator\Validation\RFCValidation
-        );
-
-        return $res
-            ? $str
-            : null;
+        return Email::val($val);
     }
 
     public static function isEmail(mixed $val): bool
     {
-        return static::email($val) !== null;
+        return Email::isValid($val);
     }
 
     public static function isIp(mixed $val): bool
@@ -212,5 +181,30 @@ class Str
         }
 
         return filter_var($str, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false;
+    }
+
+    public static function mask(
+        mixed $val,
+        string $mask = '*',
+        int $length = 3
+    ): string {
+        $string = static::val($val);
+        $length = Integer::get($length, 1, 1);
+
+        if (empty($string)) {
+            return str_repeat($mask, $length);
+        }
+
+        $first = mb_substr($string, 0, 1, 'UTF-8');
+        $last = mb_substr($string, -1, 1, 'UTF-8');
+        $l = mb_strlen($string, 'UTF-8');
+
+        if ($l <= ($length + 2)) {
+            $length = max(($l - 2), 1);
+        }
+
+        return $first .
+            str_repeat($mask, $length) .
+            $last;
     }
 }

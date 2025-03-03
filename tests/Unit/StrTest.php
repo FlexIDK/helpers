@@ -6,7 +6,35 @@ use Tests\TestCase;
 
 class StrTest extends TestCase
 {
-    public function test_hasEntityCharters(): void
+    public function test_mask(): void
+    {
+        $this->assertEquals(
+            '***',
+            Str::mask(null)
+        );
+
+        $this->assertEquals(
+            'a*b',
+            Str::mask('ab')
+        );
+
+        $this->assertEquals(
+            'a*c',
+            Str::mask('abc')
+        );
+
+        $this->assertEquals(
+            'a**d',
+            Str::mask('abcd')
+        );
+
+        $this->assertEquals(
+            'a***e',
+            Str::mask('abcde')
+        );
+    }
+
+    public function test_has_entity_charters(): void
     {
         $this->assertTrue(
             ! Str::hasEntityCharters('abc &a abc')
@@ -460,7 +488,7 @@ TEXT;
         );
 
         $this->assertEquals(
-            null,
+            'test@test.com',
             Str::email('test@test.com?subject=123')
         );
     }
@@ -469,6 +497,10 @@ TEXT;
     {
         $this->assertTrue(
             Str::isEmail('TEST+abc@tesT.CoM')
+        );
+
+        $this->assertFalse(
+            Str::isEmail('test@test.com?subject=123')
         );
     }
 }

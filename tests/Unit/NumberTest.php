@@ -165,6 +165,34 @@ class NumberTest extends TestCase
         );
     }
 
+    public function test_round(): void
+    {
+        $this->assertEquals(
+            (string)0.33,
+            (string)(Number::round(1 / 3, 2))
+        );
+
+        $this->assertEquals(
+            (string)0.67,
+            (string)(Number::round(2 / 3, 2))
+        );
+
+        $this->assertEquals(
+            (string)1.43,
+            (string)(Number::round(50 / 35, 2))
+        );
+
+        $this->assertEquals(
+            (string)2,
+            (string)(Number::round(2.00 / 1.00001, 2))
+        );
+
+        $this->assertEquals(
+            (string)1.52,
+            (string)(Number::round(100 / 66, 2))
+        );
+    }
+
     public function test_money(): void
     {
         $this->assertEquals(
@@ -358,7 +386,7 @@ class NumberTest extends TestCase
         );
     }
 
-    public function test_minMax(): void
+    public function test_min_max(): void
     {
         $this->assertEquals(
             [18, 18],

@@ -5,7 +5,7 @@ use Tests\TestCase;
 
 class ArrTest extends TestCase
 {
-    public function test_firstByKeys()
+    public function test_first_by_keys()
     {
         $this->assertEquals(
             2,
@@ -33,7 +33,7 @@ class ArrTest extends TestCase
         );
     }
 
-    public function test_randomValues()
+    public function test_random_values()
     {
         $this->assertNull(
             Arr::randomValue([])
@@ -172,7 +172,7 @@ class ArrTest extends TestCase
         );
     }
 
-    public function test_keyStartWith(): void
+    public function test_key_start_with(): void
     {
         $arr = [
             'abc_1' => 1,
@@ -232,7 +232,7 @@ class ArrTest extends TestCase
         );
     }
 
-    public function test_onlyType(): void
+    public function test_only_type(): void
     {
         $this->assertEquals(
             [1, 2, 3],
@@ -260,7 +260,7 @@ class ArrTest extends TestCase
         );
     }
 
-    public function test_keyMap(): void
+    public function test_key_map(): void
     {
         $this->assertEquals(
             [1, 2],
@@ -308,7 +308,7 @@ class ArrTest extends TestCase
         );
     }
 
-    public function test_dotMerge(): void
+    public function test_dot_merge(): void
     {
         $this->assertEquals(
             [

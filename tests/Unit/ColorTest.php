@@ -5,7 +5,7 @@ use Tests\TestCase;
 
 class ColorTest extends TestCase
 {
-    public function test_fromCMYK()
+    public function test_from_cmyk()
     {
         $this->assertEquals(
             '#330000',
@@ -18,7 +18,7 @@ class ColorTest extends TestCase
         );
     }
 
-    public function test_toCMYK()
+    public function test_to_cmyk()
     {
         $this->assertEquals(
             ['c' => 0, 'm' => 100, 'y' => 100, 'k' => 0],
@@ -31,7 +31,7 @@ class ColorTest extends TestCase
         );
     }
 
-    public function test_toHSL()
+    public function test_to_hsl()
     {
         $this->assertEquals(
             'hsl(300.47, 100%, 50%)',
@@ -59,7 +59,7 @@ class ColorTest extends TestCase
         );
     }
 
-    public function test_fromHex(): void
+    public function test_from_hex(): void
     {
         $this->assertEquals(
             '#FA00FA',
@@ -92,7 +92,7 @@ class ColorTest extends TestCase
         );
     }
 
-    public function test_toHex()
+    public function test_to_hex()
     {
         $this->assertEquals(
             '#FF0000',
@@ -125,7 +125,7 @@ class ColorTest extends TestCase
         );
     }
 
-    public function test_toRGB()
+    public function test_to_rgb()
     {
         $this->assertEquals(
             'rgba(255, 0, 255, 0%)',
@@ -168,7 +168,7 @@ class ColorTest extends TestCase
         );
     }
 
-    public function test_fromRGB(): void
+    public function test_from_rgb(): void
     {
         $this->assertEquals(
             '#FAFAFA',

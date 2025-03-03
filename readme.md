@@ -32,6 +32,27 @@ $newObj = Url::object('http://aliexpress.ru/fsd')->clone(); // clone
 
 ```
 
+### Number
+
+```php
+use One23\Helpers\Number;
+
+Number::round(1 / 3, 2); // 0.33
+```
+
+### Email
+
+```php
+use One23\Helpers\Email;
+
+Email::val('test@test.com?subject=123'); // test@test.com
+
+Email::isValid('abc@abc'); // false
+Email::isValid('abc@def.gh') // true
+
+Email::mask('test@test.com'); // t**t@t**t.c*m
+```
+
 ### String
 
 ```php
@@ -40,6 +61,7 @@ use One23\Helpers\Str;
 Str::hasEntityCharters('abc &a abc'); // false
 Str::hasEntityCharters('abc &nbsp; abc'); // true
 
+Str::mask('abc'); // a*b
 ```
 
 ### Random  

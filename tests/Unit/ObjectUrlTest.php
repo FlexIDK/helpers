@@ -78,7 +78,7 @@ class ObjectUrlTest extends TestCase
         );
     }
 
-    public function test_sortQueryKeys()
+    public function test_sort_query_keys()
     {
         $url = (new ObjectUrl('https://example.com/path?b=&a&c=1&e=2&f[1]=2&f[0]=1&d=abc#fragment'))
             ->setMutable(false);

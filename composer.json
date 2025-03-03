@@ -4,37 +4,38 @@
   "homepage": "https://github.com/FlexIDK/helpers",
   "description": "One23 Helpers for php && laravel",
   "license": "MIT",
-  "version": "v0.4.6",
+  "version": "v0.5.0",
   "authors": [
   ],
   "require": {
-    "php" : "^8.2|^8.3",
+    "php" : "^8.2|^8.3|^8.4",
     "ext-json": "*",
     "ext-mbstring": "*",
     "ext-intl": "*",
-    "illuminate/contracts": "^v10|^v11",
-    "illuminate/support": "^v10|^v11",
-    "illuminate/database": "^v10|^v11",
+    "ext-bcmath": "*",
+    "illuminate/contracts": "^v10|^v11|^v12",
+    "illuminate/support": "^v10|^v11|^v12",
+    "illuminate/database": "^v10|^v11|^v12",
     "nesbot/carbon": "^2.62|^3",
     "egulias/email-validator": "^4"
   },
   "require-dev": {
     "symfony/var-dumper": "^v6|^v7",
-    "phpunit/phpunit": "^v10|^v11",
-    "phpstan/phpstan": "^1.4.7",
+    "phpunit/phpunit": "^v10|^v11|^v12",
+    "phpstan/phpstan": "^1.4.7|^2",
     "laravel/pint": "^v1.6",
-    "nunomaduro/larastan": "^v2.6",
+    "nunomaduro/larastan": "^v2.6|^v3",
     "fakerphp/faker": "^v1.21"
   },
   "suggest": {
-    "laravel/framework": "^v10|^v11"
+    "laravel/framework": "^v10|^v11|^v12"
   },
   "scripts": {
     "test": [
-      "phpunit"
+      "@php ./vendor/bin/phpunit"
     ],
-    "pint": "./vendor/laravel/pint/builds/pint",
-    "phpstan": "./vendor/bin/phpstan analyse --memory-limit=2G",
+    "pint": "@php ./vendor/laravel/pint/builds/pint",
+    "phpstan": "@php ./vendor/bin/phpstan analyse --memory-limit=2G",
     "code-quality": [
       "@pint",
       "@phpstan"

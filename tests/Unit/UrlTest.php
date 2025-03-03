@@ -83,7 +83,7 @@ class UrlTest extends TestCase
         );
     }
 
-    public function test_fromUri()
+    public function test_from_uri()
     {
         $this->assertEquals(
             'https://localhost/',

@@ -293,7 +293,7 @@ class IntegerTest extends TestCase
         );
     }
 
-    public function test_minMax()
+    public function test_min_max()
     {
         $this->assertEquals(
             [3, 10],
