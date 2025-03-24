@@ -227,11 +227,49 @@ class ResponseApi implements \Stringable, Arrayable, Jsonable, Responsable
 
     //
 
-    public function setData(mixed $val): static
+    /**
+     * @param string|null $merge append|prepend|replace
+     */
+    public function setData(mixed $val, ?string $merge = null): static
     {
-        $this->data = $val;
+        if (
+            $merge &&
+            is_array($val) &&
+            in_array($merge, ['append', 'prepend', 'replace']) !== false
+        ) {
+            $before = $this->data ?? [];
+
+            switch ($merge) {
+                case 'append':
+                    $this->data = array_merge(
+                        (is_array($before) ? $before : []),
+                        $val
+                    );
+                    break;
+
+                case 'prepend':
+                    $before = $this->data ?? [];
+                    $this->data = array_merge(
+                        $val,
+                        (is_array($before) ? $before : []),
+                    );
+                    break;
+
+                case 'replace':
+                    $this->data = $val;
+                    break;
+            }
+        }
+        else {
+            $this->data = $val;
+        }
 
         return $this;
+    }
+
+    public function getData(): mixed
+    {
+        return $this->data ?? null;
     }
 
     public function isRaw(bool $val): static
