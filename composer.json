@@ -4,7 +4,7 @@
   "homepage": "https://github.com/FlexIDK/helpers",
   "description": "One23 Helpers for php && laravel",
   "license": "MIT",
-  "version": "v0.52",
+  "version": "v0.5.2",
   "authors": [
   ],
   "require": {
