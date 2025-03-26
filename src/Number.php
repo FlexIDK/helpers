@@ -111,27 +111,55 @@ class Number
             : null;
     }
 
-    /**
-     * @deprecated
-     * @see Number::round
-     */
     public static function money(mixed $amount = null, int $decimals = 2): float|int|null
     {
-        return static::round($amount, $decimals);
+        $val = static::float($amount, min: 0);
+        if (is_null($val)) {
+            return null;
+        }
+
+        $val = static::round($val, $decimals);
+        if (is_null($val)) {
+            return null;
+        }
+
+        $str = (string)$val;
+        if (str_contains($str, 'E')) {
+            return null;
+        }
+
+        return $val;
     }
 
     public static function round(
         mixed $number,
         int $decimals = 2
     ) {
-        $val = static::float($number, 0, 0) ?: 0;
-
-        $val = (string)$val;
-        if (preg_match('/^((\d+)(\.(\d+))?)E-(\d+)$/ui', $val, $match)) {
-            $val = '0.' . str_repeat('0', ($match[5] - 1)) . $match[2] . $match[4];
+        $val = static::float($number);
+        if (is_null($val)) {
+            return null;
         }
 
-        $res = bcround((string)$val, $decimals);
+        $val = (string)$val;
+        if (
+            str_contains($val, 'E') &&
+            preg_match('/^(-)?((\d+)(\.(\d+))?)E([-+])(\d+)$/ui', $val, $match)
+        ) {
+            if ($match[6] === '-') {
+                $val =
+                    $match[1] .
+                    '0.' .
+                    str_repeat('0', ($match[7] - mb_strlen($match[3]))) .
+                    ($match[3] . $match[5]);
+            } else {
+                $val =
+                    $match[1] .
+                    ($match[3] . $match[5]) .
+                    str_repeat('0', ($match[7] - mb_strlen($match[5])));
+            }
+        }
+
+        $res = bcround($val, $decimals);
         if (strpos($res, '.') === false) {
             return (int)$res;
         }

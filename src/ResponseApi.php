@@ -228,7 +228,7 @@ class ResponseApi implements \Stringable, Arrayable, Jsonable, Responsable
     //
 
     /**
-     * @param string|null $merge append|prepend|replace
+     * @param  string|null  $merge  append|prepend|replace
      */
     public function setData(mixed $val, ?string $merge = null): static
     {
@@ -259,8 +259,7 @@ class ResponseApi implements \Stringable, Arrayable, Jsonable, Responsable
                     $this->data = $val;
                     break;
             }
-        }
-        else {
+        } else {
             $this->data = $val;
         }
 

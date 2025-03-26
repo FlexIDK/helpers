@@ -168,8 +168,18 @@ class NumberTest extends TestCase
     public function test_round(): void
     {
         $this->assertEquals(
-            (string)0.33,
-            (string)(Number::round(1 / 3, 2))
+            '-8.374890123789E+34',
+            (string)(Number::round(-83748901237890471839274123094817230, 2))
+        );
+
+        $this->assertEquals(
+            '0',
+            (string)(Number::round(-0.000000000000000000000001, 2))
+        );
+
+        $this->assertEquals(
+            '-0.33',
+            (string)(Number::round(-1 / 3, 2))
         );
 
         $this->assertEquals(
@@ -178,23 +188,37 @@ class NumberTest extends TestCase
         );
 
         $this->assertEquals(
-            (string)1.43,
-            (string)(Number::round(50 / 35, 2))
+            '-1.43',
+            (string)(Number::round(-50 / 35, 2))
         );
 
         $this->assertEquals(
             (string)2,
-            (string)(Number::round(2.00 / 1.00001, 2))
+            (string)(Number::round(+2.00 / 1.00001, 2))
         );
 
         $this->assertEquals(
             (string)1.52,
             (string)(Number::round(100 / 66, 2))
         );
+
+        $this->assertEquals(
+            '8.374890123789E+34',
+            (string)(Number::round(83748901237890471839274123094817230, 2))
+        );
     }
 
     public function test_money(): void
     {
+        $this->assertNull(
+            Number::money((-12905 / 242419), 4)
+        );
+
+        $this->assertEquals(
+            (string)0,
+            (string)(Number::money(0, 4) * 100)
+        );
+
         $this->assertEquals(
             (string)5.32,
             (string)(Number::money((12905 / 242419), 4) * 100)
@@ -228,6 +252,11 @@ class NumberTest extends TestCase
         $this->assertEquals(
             0,
             Number::money(null, 19)
+        );
+
+        $this->assertEquals(
+            null,
+            Number::money(123471328974890172389478912378497182937489127340897123894712380947213, 19)
         );
     }
 

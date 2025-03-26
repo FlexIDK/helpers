@@ -5,33 +5,32 @@ use Tests\TestCase;
 
 class ResponseApiTest extends TestCase
 {
-
     public function test_set_data(): void
     {
         $api = ResponseApi::ok([]);
         $api->isRaw(true);
         $api->setData(['a' => 1]);
 
-        $this->assertEquals($api->toArray(), ['a'=>1]);
+        $this->assertEquals($api->toArray(), ['a' => 1]);
 
         $api->setData(['b' => 2], 'append');
-        $this->assertEquals($api->toArray(), ['a'=>1, 'b' => 2]);
+        $this->assertEquals($api->toArray(), ['a' => 1, 'b' => 2]);
 
         $api->setData(['c' => 3], 'prepend');
-        $this->assertEquals($api->toArray(), ['c'=>3, 'a'=>1, 'b' => 2]);
+        $this->assertEquals($api->toArray(), ['c' => 3, 'a' => 1, 'b' => 2]);
 
-        $api->setData(['d'=>4]);
-        $this->assertEquals($api->toArray(), ['d'=>4]);
+        $api->setData(['d' => 4]);
+        $this->assertEquals($api->toArray(), ['d' => 4]);
 
-        $api->setData(['e'=>5], 'replace');
-        $this->assertEquals($api->toArray(), ['e'=>5]);
+        $api->setData(['e' => 5], 'replace');
+        $this->assertEquals($api->toArray(), ['e' => 5]);
 
         //
 
         $api = ResponseApi::ok([]);
         $api->setData(['a' => 1]);
 
-        $this->assertEquals($api->getData(), ['a'=>1]);
+        $this->assertEquals($api->getData(), ['a' => 1]);
     }
 
     public function test_is_debug(): void
