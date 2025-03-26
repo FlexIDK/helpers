@@ -21,7 +21,7 @@ class ResponseApi implements \Stringable, Arrayable, Jsonable, Responsable
     protected int $errorCode = 0;
 
     /** @var \Closure[] */
-    protected static array $globalExtra = [];
+    protected static array $extra = [];
 
     protected bool $pretty;
 
@@ -48,6 +48,41 @@ class ResponseApi implements \Stringable, Arrayable, Jsonable, Responsable
         );
     }
 
+    protected function extra(): array
+    {
+        $ignoreKeys = [
+            'success',
+            'error',
+            $this->getDebug() ? 'is_debug' : null,
+            $this->getResultKey(),
+        ];
+
+        $res = [];
+        foreach (static::$extra as $closure) {
+            if (! ($closure instanceof \Closure)) {
+                continue;
+            }
+
+            $r = $closure();
+            if (! is_array($r)) {
+                continue;
+            }
+
+            array_walk($r, function($v, $k) use (
+                &$res,
+                $ignoreKeys,
+            ) {
+                if (in_array($k, $ignoreKeys, true)) {
+                    return;
+                }
+
+                $res[$k] = $v;
+            });
+        }
+
+        return $res;
+    }
+
     public function toArray(): array
     {
         if (
@@ -59,41 +94,19 @@ class ResponseApi implements \Stringable, Arrayable, Jsonable, Responsable
                 : [$this->getResultKey() => $this->data];
         }
 
-        //
-
-        $extra = [];
-        foreach (static::$globalExtra as $closure) {
-            if (! ($closure instanceof \Closure)) {
-                continue;
-            }
-
-            $res = $closure();
-            if (! is_array($res)) {
-                continue;
-            }
-
-            $extra = [
-                ...$extra,
-                ...$res,
-            ];
-        }
-
-        //
-
         $isDebug = $this->getDebug();
         if ($this->isSuccess) {
             return [
                 'success' => $this->isSuccess,
                 $this->getResultKey() => $this->data,
                 ...($isDebug ? ['is_debug' => $this->getDebug()] : []),
-                ...$extra,
+                ...$this->extra(),
             ];
         }
 
         $res = [
             'success' => $this->isSuccess,
             ...($isDebug ? ['is_debug' => $this->getDebug()] : []),
-            ...$extra,
         ];
 
         $res['error'] = [
@@ -117,6 +130,11 @@ class ResponseApi implements \Stringable, Arrayable, Jsonable, Responsable
             $res['error']['fields'] = $fields;
             $res['error']['fields_keys'] = array_keys($fields);
         }
+
+        $res = [
+            ...$res,
+            ...$this->extra(),
+        ];
 
         return $res;
     }
@@ -206,17 +224,17 @@ class ResponseApi implements \Stringable, Arrayable, Jsonable, Responsable
 
     public static function setGlobalExtra(\Closure $closure): int
     {
-        static::$globalExtra[] = $closure;
+        static::$extra[] = $closure;
 
-        return array_key_last(static::$globalExtra);
+        return array_key_last(static::$extra);
     }
 
     public static function removeGlobalExtra(?int $key = null): void
     {
         if ($key === null) {
-            static::$globalExtra = [];
+            static::$extra = [];
         } else {
-            unset(static::$globalExtra[$key]);
+            unset(static::$extra[$key]);
         }
     }
 
@@ -290,12 +308,22 @@ class ResponseApi implements \Stringable, Arrayable, Jsonable, Responsable
 
     protected function exception2array(\Throwable $e): array
     {
+        $trace = null;
+        if ($this->getDebug()) {
+            $trace = Arr::preview(
+                $e->getTrace(),
+                3,
+                1,
+                '...'
+            );
+        }
+
         return Arr::filterNull([
             'message' => $e->getMessage(),
             'code' => $e->getCode(),
             'file' => ($this->getDebug() ? $e->getFile() : null),
             'line' => ($this->getDebug() ? $e->getLine() : null),
-            'trace' => ($this->getDebug() ? $e->getTraceAsString() : null),
+            'trace' => $trace,
         ]);
     }
 

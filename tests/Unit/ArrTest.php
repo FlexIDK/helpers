@@ -5,6 +5,46 @@ use Tests\TestCase;
 
 class ArrTest extends TestCase
 {
+    public function test_preview()
+    {
+        $this->assertEquals(
+            ['a', 'b', 'c'],
+            Arr::preview(['a', 'b', 'c'])
+        );
+
+        $this->assertEquals(
+            ['a', 'b', 'c'],
+            Arr::preview(['a', 'b', 'c'], 3, 3)
+        );
+
+        $this->assertEquals(
+            ['a', 'b', 'c'],
+            Arr::preview(['a', 'b', 'c'], 3, 3, '...')
+        );
+
+        $arr = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'];
+
+        $this->assertEquals(
+            ['a', 'b', 'c', '...', 'g', 'h', 'i'],
+            Arr::preview($arr, 3, 3, '...')
+        );
+
+        $this->assertEquals(
+            ['...', 'g', 'h', 'i'],
+            Arr::preview($arr, 0, 3, '...')
+        );
+
+        $this->assertEquals(
+            ['a', 'b', 'c', '...'],
+            Arr::preview($arr, 3, 0, '...')
+        );
+
+        $this->assertEquals(
+            $arr,
+            Arr::preview($arr, -3, 0, '...')
+        );
+    }
+
     public function test_first_by_keys()
     {
         $this->assertEquals(

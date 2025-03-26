@@ -9,6 +9,7 @@ class Arr
 {
     use Traits\Arr\FirstByKeys;
     use Traits\Arr\KeyStartWith;
+    use Traits\Arr\Preview;
     use Traits\Arr\Substr;
     use Traits\Arr\Sum;
 
